@@ -1,5 +1,7 @@
 import tkinter as tk
+import pandas as pd
 from functions import *
+from cargando import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
@@ -13,6 +15,8 @@ BTN_FG = 'white'
 PANEL_BG = 'white'
 PANEL_WIDTH = 600
 PANEL_HEIGHT = 300
+
+carga = Cargar()
 
 class Navbar(tk.Frame):
     def __init__(self, master=None, **kwargs):
@@ -45,9 +49,9 @@ class Navbar(tk.Frame):
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Validar', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
 
-        self.file_entry = tk.Text(self.file_panel, width=40, height=30)
-        self.file_entry.configure(bg="#E6E6FA")
-        self.file_entry.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry1 = tk.Text(self.file_panel, width=40, height=30)
+        self.file_entry1.configure(bg="#E6E6FA")
+        self.file_entry1.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
 
 
         # Widgets Validacion
@@ -58,9 +62,9 @@ class Navbar(tk.Frame):
         tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2).grid(row=4, column=0, padx=(100,50), pady=20)
         
-        self.file_entry = tk.Text(self.validation_panel, width=40, height=30)
-        self.file_entry.configure(bg="#E6E6FA")
-        self.file_entry.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
+        self.file_entry2 = tk.Text(self.validation_panel, width=40, height=30)
+        self.file_entry2.configure(bg="#E6E6FA")
+        self.file_entry2.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
         
         # Widgets Calificador
 
@@ -69,9 +73,9 @@ class Navbar(tk.Frame):
         tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
         tk.Button(self.qualify_panel, text='Guardar en..', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
 
-        self.file_entry = tk.Text(self.qualify_panel, width=40, height=30)
-        self.file_entry.configure(bg="#E6E6FA")
-        self.file_entry.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry3 = tk.Text(self.qualify_panel, width=40, height=30)
+        self.file_entry3.configure(bg="#E6E6FA")
+        self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
 
 
         self.file_panel.pack_forget()
@@ -83,8 +87,8 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            leer(ruta_archivo)
-            return
+            carga.leer_claves(leer(ruta_archivo))
+            return 
         
 
     def select_folder_respuestas(self):
@@ -92,8 +96,8 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, RESPUESTAS)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            leer(ruta_archivo)
-            return
+            carga.leer_respuestas(leer(ruta_archivo))
+            return 
         
 
     def select_folder_identifi(self):
@@ -101,7 +105,7 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, IDENTIFI)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            leer(ruta_archivo)
+            carga.leer_indentifi(leer(ruta_archivo))
             return
 
     def show_file(self):
@@ -125,8 +129,7 @@ root.title("AdminUnica")
 root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
-def leer(ruta_archivo):
-    with open(ruta_archivo, "r") as archivo:
-        contenido = archivo.read()
-        print(contenido)
+
+
 root.mainloop()
+
