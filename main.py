@@ -47,7 +47,6 @@ class Navbar(tk.Frame):
         tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Validar', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
 
         self.file_entry1 = tk.Text(self.file_panel, width=40, height=30)
         self.file_entry1.configure(bg="#E6E6FA")
