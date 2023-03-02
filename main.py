@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from functions import *
 NAV_BG = 'gray'
 BTN_BG = 'gray'
 BTN_FG = 'white'
@@ -29,11 +29,42 @@ class Navbar(tk.Frame):
         self.validation_panel.config(bg=PANEL_BG, height=PANEL_HEIGHT, width=PANEL_WIDTH)
         self.qualify_panel.config(bg=PANEL_BG, height=PANEL_HEIGHT, width=PANEL_WIDTH)
         
-        tk.Button(self.file_panel, text='Subir claves').grid(row=0, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar Identificadores').grid(row=1, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar respuestas').grid(row=2, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Validar').grid(row=3, column=0, padx=(100,50), pady=50)
+        # Widgets Archivos
         
+        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=upload_keys).grid(row=0, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Validar', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
+
+        self.file_entry = tk.Text(self.file_panel, width=40, height=30)
+        self.file_entry.configure(bg="#E6E6FA")
+        self.file_entry.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+
+
+        # Widgets Validacion
+
+        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2, command=upload_keys).grid(row=0, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2).grid(row=4, column=0, padx=(100,50), pady=20)
+        
+        self.file_entry = tk.Text(self.validation_panel, width=40, height=30)
+        self.file_entry.configure(bg="#E6E6FA")
+        self.file_entry.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
+        
+        # Widgets Calificador
+
+        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=upload_keys).grid(row=0, column=0, padx=(100,50), pady=50)
+        tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
+        tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
+        tk.Button(self.qualify_panel, text='Guardar en..', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
+
+        self.file_entry = tk.Text(self.qualify_panel, width=40, height=30)
+        self.file_entry.configure(bg="#E6E6FA")
+        self.file_entry.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+
+
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
@@ -45,8 +76,9 @@ class Navbar(tk.Frame):
         
     def show_validation(self):
         self.file_panel.pack_forget()
-        self.validation_panel.pack(side='top', fill='both', expand=True)
         self.qualify_panel.pack_forget()
+        self.validation_panel.pack(side='top', fill='both', expand=True)
+        
         
     def show_qualify(self):
         self.file_panel.pack_forget()
@@ -55,6 +87,7 @@ class Navbar(tk.Frame):
 
 
 root = tk.Tk()
+root.title("AdminUnica")
 root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
