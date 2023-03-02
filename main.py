@@ -40,9 +40,9 @@ class Navbar(tk.Frame):
         self.path_label.grid(row=4, column=1)
         # Widgets Archivos
         
-        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder, ).grid(row=0, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder).grid(row=1, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder).grid(row=2, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Validar', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
 
         self.file_entry = tk.Text(self.file_panel, width=40, height=30)
@@ -77,12 +77,31 @@ class Navbar(tk.Frame):
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
-
-    def select_folder(self, text):
+    
+    def select_folder_claves(self):
         folder_path = filedialog.askdirectory()
-        ruta_archivo = os.path.join(folder_path, text)
+        ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
-            messagebox.showerror("Error", f"{ruta_archivo}")
+            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            leer(ruta_archivo)
+            return
+        
+
+    def select_folder_respuestas(self):
+        folder_path = filedialog.askdirectory()
+        ruta_archivo = os.path.join(folder_path, RESPUESTAS)
+        if ruta_archivo != "":
+            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            leer(ruta_archivo)
+            return
+        
+
+    def select_folder_identifi(self):
+        folder_path = filedialog.askdirectory()
+        ruta_archivo = os.path.join(folder_path, IDENTIFI)
+        if ruta_archivo != "":
+            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            leer(ruta_archivo)
             return
 
     def show_file(self):
@@ -106,4 +125,8 @@ root.title("AdminUnica")
 root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
+def leer(ruta_archivo):
+    with open(ruta_archivo, "r") as archivo:
+        contenido = archivo.read()
+        print(contenido)
 root.mainloop()
