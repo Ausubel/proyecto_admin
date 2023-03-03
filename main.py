@@ -103,11 +103,10 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, RESPUESTAS)
         if ruta_archivo != "":
             # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            df_respuestas = carga.leer_respuestas(ruta_archivo)
+            DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
             # self.file_entry1.delete("2.0", "end")
             self.file_entry1.insert("end", f"\nSe cargaron las respuestas ..")
-            # print(DF_RESPUESTAS)
-            DF_RESPUESTAS = df_respuestas
+
             return 
         
 
@@ -138,12 +137,13 @@ class Navbar(tk.Frame):
         self.validation_panel.pack_forget()
         self.qualify_panel.pack(side='top', fill='both', expand=True)
 
-    def validate3(self):
+    def validate3(self, DF_RESPUESTAS):
         if DF_RESPUESTAS.empty:
             messagebox.showerror("Error", "Primero debes cargar el archivo de respuestas")
             return
         else:
-            pass
+            res = duplicated_litio_solution(DF_RESPUESTAS)
+            self.file_entry2.insert("end", f"{res}")
 root = tk.Tk()
 root.title("AdminUnica")
 root.geometry("800x600")
