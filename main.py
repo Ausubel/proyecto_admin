@@ -2,6 +2,7 @@ import tkinter as tk
 import pandas as pd
 from functions import *
 from cargando import *
+from validations import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
@@ -12,6 +13,7 @@ IDENTIFI= "identifi.sdf"
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
+DF_RESPUESTAS = ""
 NAV_BG = 'gray'
 BTN_BG = 'gray'
 BTN_FG = 'white'
@@ -58,11 +60,11 @@ class Navbar(tk.Frame):
 
         # Widgets Validacion
 
-        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2).grid(row=0, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2).grid(row=4, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2, command=self.select_folder_claves).grid(row=1, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2, command=self.validate3).grid(row=2, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2, command=self.select_folder_claves).grid(row=3, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.select_folder_claves).grid(row=4, column=0, padx=(100,50), pady=20)
         
         self.file_entry2 = tk.Text(self.validation_panel, width=40, height=30)
         self.file_entry2.configure(bg="#E6E6FA")
@@ -88,9 +90,11 @@ class Navbar(tk.Frame):
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
-            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_CLAVES = carga.leer_claves(ruta_archivo)
-            print(DF_CLAVES)
+            # self.file_entry1.delete("1.0", "end")
+            self.file_entry1.insert("end", f"\nSe cargaron las claves ..")
+            # print(DF_CLAVES)
             return 
         
 
@@ -98,9 +102,12 @@ class Navbar(tk.Frame):
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, RESPUESTAS)
         if ruta_archivo != "":
-            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
-            print(DF_RESPUESTAS)
+            # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            df_respuestas = carga.leer_respuestas(ruta_archivo)
+            # self.file_entry1.delete("2.0", "end")
+            self.file_entry1.insert("end", f"\nSe cargaron las respuestas ..")
+            # print(DF_RESPUESTAS)
+            DF_RESPUESTAS = df_respuestas
             return 
         
 
@@ -108,9 +115,11 @@ class Navbar(tk.Frame):
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, IDENTIFI)
         if ruta_archivo != "":
-            messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
+            # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_IDENTIFI = carga.leer_indentifi(ruta_archivo)
-            print(DF_IDENTIFI)
+            # self.file_entry1.delete("3.0", "end")
+            self.file_entry1.insert("end", f"\nSe cargaron los identificadores ..")
+            # print(DF_IDENTIFI)
             return
 
     def show_file(self):
@@ -129,14 +138,15 @@ class Navbar(tk.Frame):
         self.validation_panel.pack_forget()
         self.qualify_panel.pack(side='top', fill='both', expand=True)
 
+    def validate3(self):
+        if DF_RESPUESTAS.empty:
+            messagebox.showerror("Error", "Primero debes cargar el archivo de respuestas")
+            return
+        else:
+            pass
 root = tk.Tk()
 root.title("AdminUnica")
 root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
-
-print(DF_CLAVES)
-print(DF_IDENTIFI)
-print(DF_RESPUESTAS)
 root.mainloop()
-
