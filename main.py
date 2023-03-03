@@ -9,7 +9,9 @@ import os
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
 IDENTIFI= "identifi.sdf"
-
+DF_CLAVES = pd.DataFrame()
+DF_IDENTIFI = pd.DataFrame()
+DF_RESPUESTAS = pd.DataFrame()
 NAV_BG = 'gray'
 BTN_BG = 'gray'
 BTN_FG = 'white'
@@ -87,8 +89,7 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            df_claves =carga.leer_claves(ruta_archivo)
-            print(df_claves)
+            DF_CLAVES = carga.leer_claves(ruta_archivo)
             return 
         
 
@@ -97,7 +98,7 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, RESPUESTAS)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            carga.leer_respuestas(ruta_archivo)
+            DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
             return 
         
 
@@ -106,7 +107,7 @@ class Navbar(tk.Frame):
         ruta_archivo = os.path.join(folder_path, IDENTIFI)
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
-            carga.leer_indentifi(ruta_archivo)
+            DF_IDENTIFI = carga.leer_indentifi(ruta_archivo)
             return
 
     def show_file(self):
