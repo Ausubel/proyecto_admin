@@ -193,7 +193,10 @@ def litos_solution(df_identifi, df_respuestas):
     exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
     # une los elementos de la lista en una cadena de texto
     exce_str = ''.join(exce)
-    return exce_str
+    if exce_str!='':
+        return exce_str
+    else:
+        return 'Todos los litos estan localizados'
 
 
 
