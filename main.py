@@ -10,10 +10,10 @@ import os
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
 IDENTIFI= "identifi.sdf"
+TEMA = "ABCDPQRS"
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
-DF_RESPUESTAS = ""
 NAV_BG = 'gray'
 BTN_BG = 'gray'
 BTN_FG = 'white'
@@ -132,20 +132,26 @@ class Navbar(tk.Frame):
         self.qualify_panel.pack(side='top', fill='both', expand=True)
 
     def validate1(self):
-        # res = mifun(DF_IDENTIFI)
-        # self.file_entry2.insert("end", f"\n{res}")
+        res = estructure_solution(DF_CLAVES, DF_RESPUESTAS, DF_IDENTIFI, TEMA)
+        self.file_entry2.insert("end", f"\n{res}")
         pass
     def validate2(self):
-        res = validate_duplicated_code(DF_IDENTIFI)
+        res = duplicated_code_solution(DF_IDENTIFI)
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate3(self):
+        res = duplicated_litio_solution(DF_RESPUESTAS)
+        self.file_entry2.insert("end", f"\n{res}")
         pass
 
     def validate4(self):
+        res = applicant_card_solution(DF_RESPUESTAS)
+        self.file_entry2.insert("end", f"\n{res}")
         pass
 
     def validate5(self):
+        res = " validate 5 "
+        self.file_entry2.insert("end", f"\n{res}")
         pass
 root = tk.Tk()
 root.title("AdminUnica")
