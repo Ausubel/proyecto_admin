@@ -1,8 +1,5 @@
 import pandas as pd
 
-
-import pandas as pd
-
 # Evaluaciones:
 # 1-Estructura: click en boton y muestre la fila que no cumple la condicion
 
