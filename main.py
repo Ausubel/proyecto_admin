@@ -132,7 +132,7 @@ class Navbar(tk.Frame):
         self.qualify_panel.pack(side='top', fill='both', expand=True)
 
     def validate1(self):
-        res = estructure_solution(DF_CLAVES, DF_RESPUESTAS, DF_IDENTIFI, TEMA)
+        res = estructure_solution(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMA)
         self.file_entry2.insert("end", f"\n{res}")
         pass
     def validate2(self):
@@ -150,7 +150,7 @@ class Navbar(tk.Frame):
         pass
 
     def validate5(self):
-        res = " validate 5 "
+        res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
         pass
 root = tk.Tk()
