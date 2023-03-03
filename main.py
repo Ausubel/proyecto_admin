@@ -90,6 +90,7 @@ class Navbar(tk.Frame):
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_CLAVES = carga.leer_claves(ruta_archivo)
+            print(DF_CLAVES)
             return 
         
 
@@ -99,6 +100,7 @@ class Navbar(tk.Frame):
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
+            print(DF_RESPUESTAS)
             return 
         
 
@@ -108,6 +110,7 @@ class Navbar(tk.Frame):
         if ruta_archivo != "":
             messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_IDENTIFI = carga.leer_indentifi(ruta_archivo)
+            print(DF_IDENTIFI)
             return
 
     def show_file(self):
@@ -132,6 +135,8 @@ root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
 
-
+print(DF_CLAVES)
+print(DF_IDENTIFI)
+print(DF_RESPUESTAS)
 root.mainloop()
 
