@@ -158,8 +158,6 @@ class Navbar(tk.Frame):
     def validate5(self):
         res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
-<<<<<<< HEAD
-=======
         pass
 
     def qualify(self):
@@ -190,9 +188,8 @@ class Navbar(tk.Frame):
         r_df.to_csv('TemaR.csv', index=False, sep=",")
         s_df.to_csv('TemaS.csv', index=False, sep=",")
         
-        self.file_entry3.insert("end", f"\nGrupos\n{a_df}")
+        self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
->>>>>>> e2394f74092a4857036a2897b8c3e342d76c01a1
 root = tk.Tk()
 root.title("AdminUnica")
 root.geometry("800x600")

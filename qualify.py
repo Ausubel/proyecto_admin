@@ -1,4 +1,3 @@
-import difflib
 import pandas as pd
 
 def qualify_normal(df_claves, df_identifi, df_respuestas):    
@@ -29,16 +28,3 @@ def qualify_normal(df_claves, df_identifi, df_respuestas):
     df_final = df_final.sort_values('puntaje', ascending=False)
     groups = df_final.groupby(df_final.tema)
     return groups
-
-    # a_df = groups.get_group("A")
-    # b_df = groups.get_group("B")
-    # c_df = groups.get_group("C")
-    # d_df = groups.get_group("D")
-    # p_df = groups.get_group("P")
-    # q_df = groups.get_group("Q")
-    # r_df = groups.get_group("R")
-    # s_df = groups.get_group("S")
-
-
-def save_as():
-    pass

@@ -194,10 +194,3 @@ def litos_solution(df_identifi, df_respuestas):
         return exce_str
     else:
         return 'Todos los litos estan localizados'
-
-
-
-
-
-
-
