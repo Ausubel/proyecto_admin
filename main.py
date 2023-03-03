@@ -2,6 +2,7 @@ import tkinter as tk
 import pandas as pd
 from functions import *
 from cargando import *
+from validaciones import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
@@ -9,6 +10,7 @@ import os
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
 IDENTIFI= "identifi.sdf"
+TEMAS = 'ABCDPQRS'
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
@@ -56,10 +58,12 @@ class Navbar(tk.Frame):
         self.file_entry1.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
 
 
-        # Widgets Validacion
+        def ejecutar_validacion(self,val_func):
+            panel_text = val_func()
+            self.file_entry2.insert(tk.END, panel_text)
 
-        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2).grid(row=0, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2, command=lambda: ejecutar_validacion(lambda: validar_estructura(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMAS))).grid(row=0, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2, command=lambda: ejecutar_validacion(lambda: validar_duplicados(DF_IDENTIFI))).grid(row=1, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2).grid(row=4, column=0, padx=(100,50), pady=20)
