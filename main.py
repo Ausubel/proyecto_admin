@@ -134,7 +134,6 @@ class Navbar(tk.Frame):
     def validate1(self):
         res = estructure_solution(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMA)
         self.file_entry2.insert("end", f"\n{res}")
-        pass
     def validate2(self):
         res = duplicated_code_solution(DF_IDENTIFI)
         self.file_entry2.insert("end", f"\n{res}")
@@ -142,17 +141,14 @@ class Navbar(tk.Frame):
     def validate3(self):
         res = duplicated_litio_solution(DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
-        pass
 
     def validate4(self):
         res = applicant_card_solution(DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
-        pass
 
     def validate5(self):
         res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
-        pass
 root = tk.Tk()
 root.title("AdminUnica")
 root.geometry("800x600")
