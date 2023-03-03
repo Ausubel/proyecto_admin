@@ -3,6 +3,7 @@ import pandas as pd
 from functions import *
 from cargando import *
 from validations import *
+from qualify import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
@@ -14,6 +15,7 @@ TEMA = "ABCDPQRS"
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
+calificacion_final = pd.DataFrame()
 NAV_BG = 'gray'
 BTN_BG = 'gray'
 BTN_FG = 'white'
@@ -71,14 +73,21 @@ class Navbar(tk.Frame):
         
         # Widgets Calificador
 
-        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2).grid(row=0, column=0, padx=(100,50), pady=50)
-        tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
-        tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
-        tk.Button(self.qualify_panel, text='Guardar en..', width=20, height=2).grid(row=3, column=0, padx=(100,50), pady=50)
+        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
+        # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
+        # tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
+        
+        tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
+        tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
+        self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
+        tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
+        self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=6, column=0, pady=30)
 
-        self.file_entry3 = tk.Text(self.qualify_panel, width=50, height=30)
+        # Panel
+        self.file_entry3 = tk.Text(self.qualify_panel, width=45, height=30)
         self.file_entry3.configure(bg="#E6E6FA")
-        self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry3.grid(row=0, column=1, rowspan=7, padx=(100,50), pady=50)
 
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
@@ -153,6 +162,37 @@ class Navbar(tk.Frame):
         res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
         pass
+
+    def qualify(self):
+        global calificacion_final
+        calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
+        # if res.empty():
+        #     self.file_entry3.insert("end", f"\nAlgo salio mal al calificar")
+        # else:
+        self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
+
+    def save(self):
+        # res = save_as(calificacion_final)
+        a_df = calificacion_final.get_group("A")
+        b_df = calificacion_final.get_group("B")
+        c_df = calificacion_final.get_group("C")
+        d_df = calificacion_final.get_group("D")
+        p_df = calificacion_final.get_group("P")
+        q_df = calificacion_final.get_group("Q")
+        r_df = calificacion_final.get_group("R")
+        s_df = calificacion_final.get_group("S")
+        
+        a_df.to_csv('TemaA.csv', index=False, sep=",")
+        b_df.to_csv('TemaB.csv', index=False, sep=",")
+        c_df.to_csv('TemaC.csv', index=False, sep=",")
+        d_df.to_csv('TemaD.csv', index=False, sep=",")
+        p_df.to_csv('TemadP.csv', index=False, sep=",")
+        q_df.to_csv('TemaQ.csv', index=False, sep=",")
+        r_df.to_csv('TemaR.csv', index=False, sep=",")
+        s_df.to_csv('TemaS.csv', index=False, sep=",")
+        
+        self.file_entry3.insert("end", f"\nGrupos\n{a_df}")
+
 root = tk.Tk()
 root.title("AdminUnica")
 root.geometry("800x600")
