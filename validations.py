@@ -15,7 +15,8 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema):
         men += '\n'
     else:
         men += 'Error en lito'
-        men += str(invalid_rows)
+        men += '\n'
+        men += invalid_rows['lito_clave'].to_string(header=False)
         men += '\n'
 
     # Verificando tema
@@ -31,9 +32,8 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema):
     # Verificando solucion
     valid_codigo= df_claves['solucion'].apply(lambda x: len(x) == 100 and x[99] != "\n")
     invalid_rows = df_claves[~valid_codigo]
-    invalid_len_rows = df_claves.loc[~valid_codigo, ['solucion']]
 
-    if invalid_rows.empty and invalid_len_rows.empty:
+    if invalid_rows.empty:
         men += 'Hecho'
         men += '\n'
     else:
@@ -41,13 +41,12 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema):
         men += '\n'
         if not invalid_rows.empty:
             men += str(invalid_rows)
-        if not invalid_len_rows.empty:
-            men += str(invalid_len_rows)
             men += '\n'
-    
+
     men += 'Verificando identificaciones'
     men += '\n'
 
+    # Verificando identificaciones
     # Verificando lito
     valid_lito_esnum = pd.to_numeric(df_identifi['lito'], errors='coerce').notnull()
     invalid_rows = df_identifi[~valid_lito_esnum]

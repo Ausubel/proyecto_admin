@@ -15,7 +15,7 @@ class Cargar():
                 for line in data_claves:
                     lito = line[:6]
                     tema = line[6]
-                    solucion = line[7:107]
+                    solucion = line[7:]
                     df_claves = pd.concat([df_claves, pd.DataFrame({'lito_clave': [lito], 'tema_clave': [tema], 'solucion': [solucion]})], ignore_index=True)            
                 archivo.close()
             return df_claves
