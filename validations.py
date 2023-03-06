@@ -181,15 +181,26 @@ def applicant_card_solution(df_respuestas):
     pass
 
 # 5-Validar Lito no localizado
+def sin_pareja(df_id, df_resp):
+    ser_lit_id = pd.Series(df_id['lito'], index=range(len(df_id['lito'])))
+    ser_lit_re = pd.Series(df_resp['lito'], index=range(len(df_resp['lito'])))
+    ser_merge = ser_lit_id.isin(ser_lit_re)
+    no_pareja = 'orden | litho  | tema | codigo \n'
+    for i in range(len(df_id)):
+        if not ser_merge[i]:
+            no_pareja += f'{i+1}  | {df_id.iloc[i,0]} |  {df_id.iloc[i,1]}   | {df_id.iloc[i,2]} \n'
+        else:
+            no_pareja = 'Todos los litos estan localizados'
+    return no_pareja
 
-def litos_solution(df_identifi, df_respuestas):
-    # crea una serie booleana que indica si cada valor de la primera columna de df_identifi está en la primera columna de df_respuestas
-    identifi_in_respuestas = df_identifi.iloc[:, 0].isin(df_respuestas.iloc[:, 0])
-    # crea una lista con las filas de df_identifi que no tienen coincidencias
-    exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
-    # une los elementos de la lista en una cadena de texto
-    exce_str = ''.join(exce)
-    if exce_str!='':
-        return exce_str
-    else:
-        return 'Todos los litos estan localizados'
+# def litos_solution(df_identifi, df_respuestas):
+#     # crea una serie booleana que indica si cada valor de la primera columna de df_identifi está en la primera columna de df_respuestas
+#     identifi_in_respuestas = df_identifi.iloc[:, 0].isin(df_respuestas.iloc[:, 0])
+#     # crea una lista con las filas de df_identifi que no tienen coincidencias
+#     exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
+#     # une los elementos de la lista en una cadena de texto
+#     exce_str = ''.join(exce)
+#     if exce_str!='':
+#         return exce_str
+#     else:
+#         return 'Todos los litos estan localizados'
