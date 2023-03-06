@@ -7,10 +7,11 @@ from qualify import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
+from pandastable import Table, TableModel
 
-CLAVES = "claves.sdf"
-RESPUESTAS = "respuestas.sdf"
-IDENTIFI= "identifi.sdf"
+CLAVES = "cla.sdf"
+RESPUESTAS = "res.sdf"
+IDENTIFI= "id.sdf"
 TEMA = "ABCDPQRS"
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
@@ -22,6 +23,7 @@ BTN_FG = 'white'
 PANEL_BG = 'white'
 PANEL_WIDTH = 600
 PANEL_HEIGHT = 300
+ruta_archivo=""
 
 carga = Cargar()
 
@@ -54,10 +56,11 @@ class Navbar(tk.Frame):
         tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
+        tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(100,50), pady=20)
 
         self.file_entry1 = tk.Text(self.file_panel, width=45, height=30)
         self.file_entry1.configure(bg="#E6E6FA")
-        self.file_entry1.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
 
         # Widgets Validacion
 
@@ -66,12 +69,12 @@ class Navbar(tk.Frame):
         tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2, command=self.validate3).grid(row=2, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2, command=self.validate4).grid(row=3, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.validate5).grid(row=4, column=0, padx=(100,50), pady=20)
-        
+        tk.Button(self.validation_panel, text='Limpiar', width=20, height=2, command=self.clean2).grid(row=5, column=0, padx=(100,50), pady=20)
+
         self.file_entry2 = tk.Text(self.validation_panel, width=45, height=30)
         self.file_entry2.configure(bg="#E6E6FA")
-        self.file_entry2.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
-        
-        # Widgets Calificador
+        self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(100,50), pady=50)
+
 
         tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
         # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
@@ -83,16 +86,27 @@ class Navbar(tk.Frame):
         tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
         self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
         tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=6, column=0, pady=30)
+        tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=7, column=0, padx=(100,50), pady=20)
 
         # Panel
         self.file_entry3 = tk.Text(self.qualify_panel, width=45, height=30)
         self.file_entry3.configure(bg="#E6E6FA")
-        self.file_entry3.grid(row=0, column=1, rowspan=7, padx=(100,50), pady=50)
+        self.file_entry3.grid(row=0, column=1, rowspan=8, padx=(100,50), pady=50)
 
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
-    
+
+
+    def clean1(self):
+        self.file_entry1.delete('1.0', tk.END)
+
+    def clean2(self):
+        self.file_entry2.delete('1.0', tk.END)
+
+    def clean3(self):
+        self.file_entry3.delete('1.0', tk.END)
+
     def select_folder_claves(self):
         global DF_CLAVES
         folder_path = filedialog.askdirectory()
@@ -178,6 +192,7 @@ class Navbar(tk.Frame):
         q_df = calificacion_final.get_group("Q")
         r_df = calificacion_final.get_group("R")
         s_df = calificacion_final.get_group("S")
+        
         
         a_df.to_csv('TemaA.csv', index=False, sep=",")
         b_df.to_csv('TemaB.csv', index=False, sep=",")

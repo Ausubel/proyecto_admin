@@ -1,8 +1,7 @@
 import pandas as pd
 
-# Evaluaciones:
+# Validaciones
 # 1-Estructura: click en boton y muestre la fila que no cumple la condicion
-
 def estructure_solution(df_claves, df_identifi, df_respuestas, tema):
     men = 'Verificando claves'
     men += '\n'
@@ -155,6 +154,7 @@ def duplicated_code_solution(df_identifi):
     else:
         res += "No se encontraron duplicados en la columna 'codigo'"
     return res
+
 # 3-Validar duplicados de litos: Devuelve la lista de los duplicados y su posicion
 def duplicated_litio_solution(df_respuestas):
     duplicados = df_respuestas.duplicated(subset=['lito'], keep=False)
@@ -183,14 +183,47 @@ def applicant_card_solution(df_respuestas):
 
 # 5-Validar Lito no localizado
 
+# def litos_solution(df_identifi, df_respuestas):
+#     men="Lito y respuesta no localizados\n"
+#     combinados = pd.merge(df_identifi, df_respuestas, on='lito', how='outer')
+
+#     # Encontrar los lítos sin pareja
+#     sin_pareja = []
+
+#     for i, row in combinados.iterrows():
+#         if pd.isna(row['codigo']):
+#             sin_pareja.append(('respuestas', i, row['lito']))
+#         elif pd.isna(row['respuesta']):
+#             sin_pareja.append(('identificador', i, row['lito']))
+
+#     # Imprimir la lista de lítos sin pareja con su número de fila y nombre de dataframe
+#     for nombre_df, num_fila, lito in sin_pareja:
+#         if(num_fila>=df_respuestas.shape[0]):
+#             men += f"Lito {lito} - {nombre_df}.sdf - fila {num_fila+1-5}\n"
+#         else:
+#             men += f"Lito {lito} - {nombre_df}.sdf - fila {num_fila+1}\n"
+
+#     if(men==""): men ="Litos y respuestas localizados"
+#     return men
+
 def litos_solution(df_identifi, df_respuestas):
-    # crea una serie booleana que indica si cada valor de la primera columna de df_identifi está en la primera columna de df_respuestas
-    identifi_in_respuestas = df_identifi.iloc[:, 0].isin(df_respuestas.iloc[:, 0])
-    # crea una lista con las filas de df_identifi que no tienen coincidencias
-    exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
-    # une los elementos de la lista en una cadena de texto
-    exce_str = ''.join(exce)
-    if exce_str!='':
-        return exce_str
+    combinados = pd.merge(df_identifi, df_respuestas, on='lito', how='outer')
+    
+    # Crear nueva columna que indica si el lito tiene pareja o no
+    combinados['pareja'] = combinados['codigo'].notna() & combinados['respuesta'].notna()
+    
+    # Filtrar solo los lítos que no tienen pareja
+    sin_pareja = combinados[~combinados['pareja']][['lito', 'pareja']]
+    
+    # Imprimir la lista de lítos sin pareja con su número de fila y nombre de dataframe
+    men = "Lito y respuesta no localizados\n"
+    for i, row in sin_pareja.iterrows():
+        if i < df_identifi.shape[0]:
+            men += f"Lito {row['lito']} - identificador.sdf - fila {i+1}\n"
+        else:
+            men += f"Lito {row['lito']} - respuestas.sdf - fila {i-df_identifi.shape[0]+1}\n"
+    
+    if not sin_pareja.empty:
+        return men
     else:
-        return 'Todos los litos estan localizados'
+        return "Litos y respuestas localizados"
