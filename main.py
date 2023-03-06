@@ -1,5 +1,6 @@
 import tkinter as tk
 import pandas as pd
+import pyodbc
 from functions import *
 from cargando import *
 from validations import *
@@ -56,10 +57,11 @@ class Navbar(tk.Frame):
         tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(100,50), pady=50)
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
-
+        tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(100,50), pady=20)
+        
         self.file_entry1 = tk.Text(self.file_panel, width=45, height=30)
         self.file_entry1.configure(bg="#E6E6FA")
-        self.file_entry1.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
 
         # Widgets Validacion
 
@@ -68,32 +70,35 @@ class Navbar(tk.Frame):
         tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2, command=self.validate3).grid(row=2, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2, command=self.validate4).grid(row=3, column=0, padx=(100,50), pady=20)
         tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.validate5).grid(row=4, column=0, padx=(100,50), pady=20)
-        
+        tk.Button(self.validation_panel, text='Limpiar', width=20, height=2, command=self.clean2).grid(row=5, column=0, padx=(100,50), pady=20)
+
         self.file_entry2 = tk.Text(self.validation_panel, width=45, height=30)
         self.file_entry2.configure(bg="#E6E6FA")
-        self.file_entry2.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
+        self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(100,50), pady=50)
         
         # Widgets Calificador
 
         tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
-        # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
-        # tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
-        
-        tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
-        tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
-        self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
-        tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
-        self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=6, column=0, pady=30)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=1, column=0, pady=30)
+        tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(100,50), pady=20)
 
         # Panel
         self.file_entry3 = tk.Text(self.qualify_panel, width=45, height=30)
         self.file_entry3.configure(bg="#E6E6FA")
-        self.file_entry3.grid(row=0, column=1, rowspan=7, padx=(100,50), pady=50)
+        self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
 
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
+
+    def clean1(self):
+        self.file_entry1.delete('1.0', tk.END)
+
+    def clean2(self):
+        self.file_entry2.delete('1.0', tk.END)
+
+    def clean3(self):
+        self.file_entry3.delete('1.0', tk.END)
     
     def select_folder_claves(self):
         global DF_CLAVES
@@ -158,7 +163,7 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
-        res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
+        res = sin_pareja(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
         pass
 
@@ -171,30 +176,43 @@ class Navbar(tk.Frame):
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
     def save(self):
-        # res = save_as(calificacion_final)
-        a_df = calificacion_final.get_group("A")
-        b_df = calificacion_final.get_group("B")
-        c_df = calificacion_final.get_group("C")
-        d_df = calificacion_final.get_group("D")
-        p_df = calificacion_final.get_group("P")
-        q_df = calificacion_final.get_group("Q")
-        r_df = calificacion_final.get_group("R")
-        s_df = calificacion_final.get_group("S")
-        
-        a_df.to_csv('TemaA.csv', index=False, sep=",")
-        b_df.to_csv('TemaB.csv', index=False, sep=",")
-        c_df.to_csv('TemaC.csv', index=False, sep=",")
-        d_df.to_csv('TemaD.csv', index=False, sep=",")
-        p_df.to_csv('TemadP.csv', index=False, sep=",")
-        q_df.to_csv('TemaQ.csv', index=False, sep=",")
-        r_df.to_csv('TemaR.csv', index=False, sep=",")
-        s_df.to_csv('TemaS.csv', index=False, sep=",")
-        
+        # Abrir conexion
+        cnxn_str = ("Driver={SQL Server Native Client 11.0};"
+            "Server=LAPTOP-8LNIGLG0;"
+            "Database=Admission;"
+            "Trusted_Connection=yes;")
+        cnxn = pyodbc.connect(cnxn_str)
+
+        # consulta SQL para obtener la tabla
+        sql = "SELECT Id, Nombre, codigo, escuela FROM Alumnos"
+
+        # leer la tabla en un dataframe de Pandas
+        df_sql = pd.read_sql(sql, cnxn)
+
+        # cerrar la conexión con la base de datos
+        cnxn.close()
+
+        # unir los dataframes utilizando la columna "codigo" como clave de unión
+        df_merged = pd.merge(calificacion_final, df_sql[['Nombre','codigo', 'escuela']], on='codigo', how='left')
+
+        # Selecciona alugnos campos
+        df = df_merged.loc[:, ['codigo', 'Nombre', 'escuela','puntaje']]
+
+
+        groups = df.groupby(df.escuela)
+
+        f_sistemas = groups.get_group("sistemas")
+
+        f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
+
+
+        f_sistemas.to_csv('sistemas.csv', index=False, sep=",")
+
         self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
 root = tk.Tk()
 root.title("AdminUnica")
-root.geometry("800x600")
+root.geometry("800x500")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
 root.mainloop()

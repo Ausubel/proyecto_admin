@@ -8,7 +8,7 @@ def qualify_normal(df_claves, df_identifi, df_respuestas):
     puntaje = 0
 
     # DataFrame con los resultados
-    df_result = pd.DataFrame(columns=['litho', 'tema', 'puntaje', 'correctas', 'incorrectas', 'vacias'], index=range(len(df_respuestas)))
+    df_result = pd.DataFrame(columns=['lito', 'tema', 'puntaje', 'correctas', 'incorrectas', 'vacias'], index=range(len(df_respuestas)))
 
     for i in range(len(df_respuestas)):
         var_respuesta = df_respuestas.iloc[i, 2]
@@ -38,12 +38,13 @@ def qualify_normal(df_claves, df_identifi, df_respuestas):
         df_result.iloc[i] = [df_respuestas.iloc[i,0], df_respuestas.iloc[i,1], puntaje, num_cor, num_inc, num_bla]
 
     # Se hace un merge de DataFrames -> identifi & result
-    df_final = pd.merge(df_identifi, df_result, on=['litho', 'tema'])
+    df_final = pd.merge(df_identifi, df_result, on=['lito', 'tema'])
     
     # Se cambia el orden a descendente -> puntaje
     df_final = df_final.sort_values('puntaje', ascending=False)
 
+    print(df_final)
     # Se crean grupos de DataFrames
     groups = df_final.groupby(df_final.tema)
     df_final.to_csv('General.csv', index=False, sep=",")
-    return groups
+    return df_final
