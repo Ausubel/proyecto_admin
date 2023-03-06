@@ -12,6 +12,8 @@ CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
 IDENTIFI= "identifi.sdf"
 TEMA = "ABCDPQRS"
+PATRON_CLAVES = 'TRQSP '
+PATRON_RESPUESTAS = 'TRQSP *'
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
@@ -141,7 +143,7 @@ class Navbar(tk.Frame):
         self.qualify_panel.pack(side='top', fill='both', expand=True)
 
     def validate1(self):
-        res = estructure_solution(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMA)
+        res = estructure_solution(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMA, PATRON_CLAVES, PATRON_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
     def validate2(self):
         res = duplicated_code_solution(DF_IDENTIFI)

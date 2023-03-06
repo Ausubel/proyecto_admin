@@ -1,137 +1,105 @@
 import pandas as pd
-
+import re
 # Evaluaciones:
 # 1-Estructura: click en boton y muestre la fila que no cumple la condicion
 
-def estructure_solution(df_claves, df_identifi, df_respuestas, tema):
+def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_claves, patron_respuestas):
     men = 'Verificando claves'
     men += '\n'
 
+    def validar_solucion_respuesta(solucion,patron):
+        if len(solucion) != 100:
+            return False
+        if re.match(r'^['+patron+' ]*$', str(solucion)) is None:
+            return False
+        return True
+    
     # Verificando lito
     lito_clave_esnum = pd.to_numeric(df_claves['lito_clave'], errors='coerce').notnull()
     invalid_rows = df_claves[~lito_clave_esnum]
     if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+        men += 'Hecho\n'
     else:
-        men += 'Error en lito'
-        men += '\n'
-        men += invalid_rows['lito_clave'].to_string(header=False)
-        men += '\n'
+        men += 'Error en lito\n' + invalid_rows['lito_clave'].to_string(header=False) + '\n'
 
     # Verificando tema
-    valid_tema = df_claves['tema_clave'].isin([i for i in tema])
-    invalid_rows = df_claves[~valid_tema]
+    valid_tema = df_identifi['tema'].isin([i for i in tema])
+    invalid_rows = df_identifi[~valid_tema]
     if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+        men += 'Hecho\n'
     else:
-        men += 'Error en tema'
-        men += str(invalid_rows)
+        men += 'Error en lito\n' + invalid_rows['tema'].to_string(header=False) + '\n'
 
     # Verificando solucion
-    valid_codigo= df_claves['solucion'].apply(lambda x: len(x) == 100 and x[99] != "\n")
-    invalid_rows = df_claves[~valid_codigo]
+
+    valid_rows = df_claves['solucion'].apply(validar_solucion_respuesta, args=(patron_claves,))
+    invalid_rows = df_claves[~valid_rows]
 
     if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+        men += 'Hecho\n'
     else:
-        men += 'Error en solucion'
-        men += '\n'
-        if not invalid_rows.empty:
-            men += str(invalid_rows)
-            men += '\n'
+        men += 'Error en solucion\n' + invalid_rows['solucion'].to_string(header=False) + '\n'
+            
 
     men += 'Verificando identificaciones'
     men += '\n'
 
     # Verificando identificaciones
     # Verificando lito
-    valid_lito_esnum = pd.to_numeric(df_identifi['lito'], errors='coerce').notnull()
-    invalid_rows = df_identifi[~valid_lito_esnum]
-    if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_lito_identifi = pd.to_numeric(df_identifi['lito'], errors='coerce').notnull()
+    invalid_rows_lito_identifi = df_identifi[~valid_lito_identifi]
+    if invalid_rows_lito_identifi.empty:
+        men += 'Hecho\n'
     else:
-        men += 'Error en lito'
-        men += str(invalid_rows)
-        men += '\n'
+        men += 'Error en lito\n' + invalid_rows_lito_identifi['lito'].to_string(header=False) + '\n'
     
     # Verificando tema
-    valid_tema = df_identifi['tema'].isin([i for i in tema])
-    invalid_rows = df_identifi[~valid_tema]
-    if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_tema_identifi = df_identifi['tema'].isin([i for i in tema])
+    invalid_rows_tema_identifi = df_identifi[~valid_tema_identifi]
+    if invalid_rows_tema_identifi.empty:
+        men += 'Hecho\n'
     else:
-        men += 'Error en tema'
-        men += '\n'
-        men += str(invalid_rows)
-        men += '\n'
+        men += 'Error en tema\n' + invalid_rows_tema_identifi['tema'].to_string(header=False) + '\n'
     
     # Verificando codigo
-    valid_codigo= pd.to_numeric(df_identifi['codigo'], errors='coerce').notnull()
-    valid_codigo_len = df_identifi['codigo'].apply(lambda x: len(x) == 6 and x[5] != "\n")
-    invalid_rows = df_identifi[~valid_codigo]
-    invalid_len_and_num_rows = df_identifi[~(valid_codigo & valid_codigo_len)]
-    if invalid_rows.empty and invalid_len_and_num_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_codigo_identifi = pd.to_numeric(df_identifi['codigo'], errors='coerce').notnull()
+    valid_codigo_identifi_len = df_identifi['codigo'].apply(lambda x: len(x) == 6)
+    invalid_codigo_identifi = df_identifi[~valid_codigo_identifi]
+    invalid_codigo_identifi_len  = df_identifi[~valid_codigo_identifi_len]
+    invalid_rows_codigo_identifi = df_identifi[~(valid_codigo_identifi & valid_codigo_identifi_len)]
+    if invalid_rows_codigo_identifi.empty:
+        men += 'Hecho\n'
     else:
-        if not invalid_rows.empty:
-            men += 'Filas con códigos inválidos:'
-            men += '\n'
-            men += str(invalid_rows)
-            men += '\n'
-        if not invalid_len_and_num_rows.empty:
-            men += 'Filas con longitud de código inválida:'
-            men += '\n'
-            men += str(invalid_len_and_num_rows)
-            men += '\n'
+        men += 'Error en tema\n' + invalid_rows_codigo_identifi['codigo'].to_string(header=False) + '\n'
 
     men += 'Verificando Respuestas'
     men += '\n'
 
     # Verificando lito
-    valid_lito= pd.to_numeric(df_respuestas['lito'], errors='coerce').notnull()
-    invalid_rows = df_respuestas[~valid_lito]
-    if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_lito_respuestas = pd.to_numeric(df_respuestas['lito'], errors='coerce').notnull()
+    valid_codigo_identifi_len = df_identifi['lito'].apply(lambda x: len(x) == 6)
+    invalid_lito_respuesta = df_respuestas[~valid_lito_respuestas]
+    if invalid_lito_respuesta.empty:
+        men += 'Hecho\n'
     else:
-        men += 'Error en lito'
-        men += '\n'
-        men += str(invalid_rows)
-        men += '\n'
+        men += 'Error en tema\n' + invalid_lito_respuesta['lito'].to_string(header=False) + '\n'
 
     # Verificando tema
-    valid_tema = df_respuestas['tema'].isin([i for i in tema])
-    invalid_rows = df_respuestas[~valid_tema]
-    if invalid_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_tema_respuestas = df_respuestas['tema'].isin([i for i in tema])
+    invalid_rows_tema_respuestas = df_respuestas[~valid_tema_respuestas]
+    if invalid_rows_codigo_identifi.empty:
+        men += 'Hecho\n'
     else:
-        men += 'Error en tema'
-        men += '\n'
-        men += str(invalid_rows)
-        men += '\n'
+        men += 'Error en tema\n' + invalid_rows_codigo_identifi['tema'].to_string(header=False) + '\n'
 
     # Verificando respuesta
-    valid_codigo= df_respuestas['respuesta'].apply(lambda x: len(x) == 100 and x[99] != "\n")
-    invalid_rows = df_respuestas[~valid_codigo]
-    invalid_len_rows = df_respuestas.loc[~valid_codigo, ['respuesta']]
-    if invalid_rows.empty and invalid_len_rows.empty:
-        men += 'Hecho'
-        men += '\n'
+    valid_rows_respuestas = df_respuestas['respuesta'].apply(validar_solucion_respuesta, args=(patron_respuestas,))
+    invalid_rows_respuestas = df_respuestas[~valid_rows_respuestas]
+
+    if invalid_rows_respuestas.empty:
+        men += 'Hecho\n'
     else:
-        men += 'Error en respuesta'
-        if not invalid_rows.empty:
-            men += str(invalid_rows)
-            men += '\n'
-        if not invalid_len_rows.empty:
-            men += str(invalid_len_rows)
-            men += '\n'
+        men += 'Error en respuesta\n' + invalid_rows_respuestas['respuesta'].to_string(header=False) + '\n'
     return men
 
 # 2-Validar duplicados: Devuelve la lista de los duplicados y su posicion
