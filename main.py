@@ -158,7 +158,7 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
-        res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
+        res = sin_pareja(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
         pass
 
@@ -197,4 +197,5 @@ root.title("AdminUnica")
 root.geometry("800x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
+root.resizable(0,0)
 root.mainloop()
