@@ -25,9 +25,8 @@ def mod_tema(tema, preguntas, df_cl):
 # Leer un string, tranformalo en list y en entero
 def preguntas(cadena):
     # string a list
-    cadena = cadena.split(" ")
+    cadena = cadena.split(", ")
     # list(string) a int
     for i in range(len(cadena)):
         cadena[i] = int(cadena[i])
     return cadena
-
