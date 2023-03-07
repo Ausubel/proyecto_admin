@@ -8,6 +8,7 @@ from qualify import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
+from PIL import Image, ImageTk
 
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
@@ -19,19 +20,18 @@ DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
 calificacion_final = pd.DataFrame()
-NAV_BG = 'gray'
-BTN_BG = 'gray'
-BTN_FG = 'white'
-PANEL_BG = 'white'
-PANEL_WIDTH = 600
-PANEL_HEIGHT = 300
+NAV_BG = '#FF010B'
+BTN_BG = '#dc3545'
+BTN_FG = '#FCF3EA'
+PANEL_BG = '#E3882E'
+PANEL_WIDTH = 650
+PANEL_HEIGHT = 20
 
 carga = Cargar()
 
 class Navbar(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
-        
         self.config(bg=NAV_BG, height=50, width=600)
 
         self.file_button = tk.Button(self, text='Archivos', bg=BTN_BG, fg=BTN_FG, bd=0, command=self.show_file)
@@ -54,42 +54,51 @@ class Navbar(tk.Frame):
         self.path_label.grid(row=4, column=1)
         # Widgets Archivos
         
-        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(100,50), pady=50)
-        tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(100,50), pady=20)
+        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(30,30), pady=50)
+        tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(30,30), pady=50)
+        tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(30,30), pady=50)
+        tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(30,30), pady=20)
         
-        self.file_entry1 = tk.Text(self.file_panel, width=45, height=30)
-        self.file_entry1.configure(bg="#E6E6FA")
-        self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(100,50), pady=50)
+        self.file_entry1 = tk.Text(self.file_panel, width=48, height=25)
+        self.file_entry1.configure(bg="#FCF3EA")
+        self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(30,30), pady=50)
 
         # Widgets Validacion
 
-        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2, command=self.validate1).grid(row=0, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2, command=self.validate2).grid(row=1, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2, command=self.validate3).grid(row=2, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2, command=self.validate4).grid(row=3, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.validate5).grid(row=4, column=0, padx=(100,50), pady=20)
-        tk.Button(self.validation_panel, text='Limpiar', width=20, height=2, command=self.clean2).grid(row=5, column=0, padx=(100,50), pady=20)
+        tk.Button(self.validation_panel, text='Validar estructura', width=20, height=2, command=self.validate1).grid(row=0, column=0, padx=(30,30), pady=20)
+        tk.Button(self.validation_panel, text='Validar codigos duplicados', width=20, height=2, command=self.validate2).grid(row=1, column=0, padx=(30,30), pady=20)
+        tk.Button(self.validation_panel, text='Validar duplicados de litos', width=20, height=2, command=self.validate3).grid(row=2, column=0, padx=(30,30), pady=20)
+        tk.Button(self.validation_panel, text='Validar carnet postulante', width=20, height=2, command=self.validate4).grid(row=3, column=0, padx=(30,30), pady=20)
+        tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.validate5).grid(row=4, column=0, padx=(30,30), pady=20)
+        tk.Button(self.validation_panel, text='Limpiar', width=20, height=2, command=self.clean2).grid(row=5, column=0, padx=(30,30), pady=20)
 
-        self.file_entry2 = tk.Text(self.validation_panel, width=45, height=30)
-        self.file_entry2.configure(bg="#E6E6FA")
-        self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(100,50), pady=50)
+        self.file_entry2 = tk.Text(self.validation_panel, width=48, height=25)
+        self.file_entry2.configure(bg="#FCF3EA")
+        self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(30,30), pady=50)
         
         # Widgets Calificador
 
-        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=1, column=0, pady=30)
-        tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(100,50), pady=20)
+        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(30,30), pady=20)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=1, column=0, padx=(30,30), pady=20)
+        tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(30,30), pady=20)
 
         # Panel
-        self.file_entry3 = tk.Text(self.qualify_panel, width=45, height=30)
-        self.file_entry3.configure(bg="#E6E6FA")
-        self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(100,50), pady=50)
+        self.file_entry3 = tk.Text(self.qualify_panel, width=48, height=25)
+        self.file_entry3.configure(bg="#FCF3EA")
+        self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(30,30), pady=50)
 
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
+        
+        
+        # self.show_welcome_message()
+
+    def show_welcome_message(self):
+    
+        messagebox.showinfo("Bienvenido", "¡Bienvenido a AdminUni!")
+        self.show_file()
+
 
     def clean1(self):
         self.file_entry1.delete('1.0', tk.END)
@@ -201,18 +210,25 @@ class Navbar(tk.Frame):
 
         groups = df.groupby(df.escuela)
 
-        f_sistemas = groups.get_group("sistemas")
+        # Prueba
+        # f_sistemas = groups.get_group("sistemas")
 
-        f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
+        # f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
 
-
-        f_sistemas.to_csv('sistemas.csv', index=False, sep=",")
+        # valido
+        escuelas = df['escuela'].unique()
+        
+        for i in escuelas:
+            especialidad = groups.get_group(i)
+            especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
+            especialidad.to_csv(f'{i}.csv', index=False, sep=",")
 
         self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
 root = tk.Tk()
 root.title("AdminUnica")
-root.geometry("800x500")
+root.geometry("660x520")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
+navbar.show_welcome_message()
 root.mainloop()
