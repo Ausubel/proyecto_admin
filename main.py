@@ -151,14 +151,16 @@ class Navbar(tk.Frame):
 
     def validate3(self):
         res = duplicated_litio_solution(DF_RESPUESTAS)
-        self.file_entry2.insert("end", f"\n{res}")
+        res2 = duplicated_litio_identifi(DF_IDENTIFI)
+        self.file_entry2.insert("end", f"\nLitos duplicados\nRESPUESTA:\n{res}")
+        self.file_entry2.insert("end", f"\nIDENTIFICADOR\n{res2}")
 
     def validate4(self):
         res = applicant_card_solution(DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
-        res = litos_solution(DF_IDENTIFI, DF_RESPUESTAS)
+        res = sin_pareja(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
         pass
 

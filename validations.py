@@ -122,11 +122,11 @@ def duplicated_code_solution(df_identifi):
     else:
         res += "No se encontraron duplicados en la columna 'codigo'"
     return res
-# 3-Validar duplicados de litos: Devuelve la lista de los duplicados y su posicion
+
+
+# 3-Validar duplicados de litos RESPUESTA
 def duplicated_litio_solution(df_respuestas):
     duplicados = df_respuestas.duplicated(subset=['lito'], keep=False)
-    # print(duplicados)
-    # print(duplicados.any())
     if duplicados.any():
         # print("Se encontraron duplicados en la columna 'lito':\n")
         datos_duplicados = {}
@@ -140,35 +140,82 @@ def duplicated_litio_solution(df_respuestas):
                 df_duplicados = pd.DataFrame({'lito': [lito]*len(df_lito), 'tema': datos_duplicados[lito]['tema'], 'respuestas': datos_duplicados[lito]['respuestas'], 'fila': datos_duplicados[lito]['indices']})
                 df_duplicados += df_duplicados[['lito', 'tema', 'respuestas', 'fila']]
         return f"Se encontraron duplicados en la columna 'lito':\n{df_duplicados}"
-    
     else:
         return "No se encontraron duplicados en la columna 'lito'"
+    return "por ahora nada"
+
+
+
+
+def duplicated_litio_identifi(df_identifi):
+    # cambia el indice
+    df_identifi = df_identifi.reset_index(drop=True)
+    df_identifi.index += 1
+
+    # Verifica si hay duplicados en la columna 'lito'
+    duplicados = df_identifi.duplicated(subset=['lito'], keep=False)
+
+    # Filtra las filas que contienen duplicados
+    filas_con_duplicados = df_identifi.where(duplicados).dropna()
+    
+
+    if filas_con_duplicados.empty:
+        return "No hay duplicados"
+    else:
+        return filas_con_duplicados
+
+
+
 # 4-Validar carnet postulante: Devuelve toda la info del postulante no identificado
 
 def applicant_card_solution(df_respuestas):
     pass
 
 # 5-Validar Lito no localizado
-def sin_pareja(df_id, df_resp):
-    ser_lit_id = pd.Series(df_id['lito'], index=range(len(df_id['lito'])))
-    ser_lit_re = pd.Series(df_resp['lito'], index=range(len(df_resp['lito'])))
-    ser_merge = ser_lit_id.isin(ser_lit_re)
-    no_pareja = 'orden | litho  | tema | codigo \n'
-    for i in range(len(df_id)):
-        if not ser_merge[i]:
-            no_pareja += f'{i+1}  | {df_id.iloc[i,0]} |  {df_id.iloc[i,1]}   | {df_id.iloc[i,2]} \n'
-        else:
-            no_pareja = 'Todos los litos estan localizados'
-    return no_pareja
+# def sin_pareja(df_id, df_resp):
+    # ser_lit_id = pd.Series(df_id['lito'], index=range(len(df_id['lito'])))
+    # ser_lit_re = pd.Series(df_resp['lito'], index=range(len(df_resp['lito'])))
+    # ser_merge = ser_lit_id.isin(ser_lit_re)
+    # no_pareja = 'orden | litho  | tema | codigo \n'
+    # for i in range(len(df_id)):
+    #     if not ser_merge[i]:
+    #         no_pareja += f'{i+1}  | {df_id.iloc[i,0]} |  {df_id.iloc[i,1]}   | {df_id.iloc[i,2]} \n'
+    #     else:
+    #         no_pareja = 'Todos los litos estan localizados'
+    # return no_pareja
 
-# def litos_solution(df_identifi, df_respuestas):
-#     # crea una serie booleana que indica si cada valor de la primera columna de df_identifi está en la primera columna de df_respuestas
-#     identifi_in_respuestas = df_identifi.iloc[:, 0].isin(df_respuestas.iloc[:, 0])
-#     # crea una lista con las filas de df_identifi que no tienen coincidencias
-#     exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
-#     # une los elementos de la lista en una cadena de texto
-#     exce_str = ''.join(exce)
-#     if exce_str!='':
-#         return exce_str
-#     else:
-#         return 'Todos los litos estan localizados'
+def sin_pareja(df_identifi, df_respuestas):
+    # ser_lit_id = pd.Series(df_identifi['lito'], index=range(len(df_identifi['lito'])))
+    # ser_lit_re = pd.Series(df_respuestas['lito'], index=range(len(df_respuestas['lito'])))
+    # ser_merge = ser_lit_id.isin(ser_lit_re)
+    # no_pareja = 'orden | litho  | tema | codigo \n'
+    # for i in range(len(df_identifi)):
+    #     if not ser_merge[i]:
+    #         no_pareja += f'{i+1}  | {df_identifi.iloc[i,0]} |  {df_identifi.iloc[i,1]}   | {df_identifi.iloc[i,2]} \n'
+    #     else:
+    #         no_pareja = 'Todos los litos estan localizados'
+    
+    
+    pass
+    
+    # ## OTRA FORMA DE VALIDAR POR AMBOS LADOS
+    # combinados = pd.merge(df_identifi, df_respuestas, on='lito', how='outer')
+    
+    # # Crear nueva columna que indica si el lito tiene pareja o no
+    # combinados['pareja'] = combinados['codigo'].notna() & combinados['respuesta'].notna()
+    
+    # # Filtrar solo los lítos que no tienen pareja
+    # sin_pareja = combinados[~combinados['pareja']][['lito', 'pareja']]
+    
+    # # Imprimir la lista de lítos sin pareja con su número de fila y nombre de dataframe
+    # men = "Lito y respuesta no localizados\n"
+    # for i, row in sin_pareja.iterrows():
+    #     if i < df_identifi.shape[0]:
+    #         men += f"Lito {row['lito']} - identificador.sdf - fila {i+1}\n"
+    #     else:
+    #         men += f"Lito {row['lito']} - respuestas.sdf - fila {i-df_identifi.shape[0]+1}\n"
+    
+    # if not sin_pareja.empty:
+    #     return men
+    # else:
+    #     return "Litos y respuestas localizados"
