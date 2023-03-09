@@ -96,12 +96,6 @@ class Navbar(tk.Frame):
 
         self.add_button = tk.Button(self.container, text="Modificar", command=lambda: self.modificar(self.listbox, self.entry))
         self.add_button.pack(side="left", padx=10)
-        
-        # tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
-        # tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
-        # self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
-        # tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
-        # self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
         tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=3, column=0, pady=(50, 30))
 
         # Panel
@@ -213,31 +207,48 @@ class Navbar(tk.Frame):
     def qualify(self):
         global calificacion_final
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
-        # if res.empty():
-        #     self.file_entry3.insert("end", f"\nAlgo salio mal al calificar")
-        # else:
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
     def save(self):
-        # res = save_as(calificacion_final)
-        a_df = calificacion_final.get_group("A")
-        b_df = calificacion_final.get_group("B")
-        c_df = calificacion_final.get_group("C")
-        d_df = calificacion_final.get_group("D")
-        p_df = calificacion_final.get_group("P")
-        q_df = calificacion_final.get_group("Q")
-        r_df = calificacion_final.get_group("R")
-        s_df = calificacion_final.get_group("S")
+        pass
+        # # Abrir conexion
+        # cnxn_str = ("Driver={SQL Server Native Client 11.0};"
+        #     "Server=LAPTOP-8LNIGLG0;"
+        #     "Database=Admission;"
+        #     "Trusted_Connection=yes;")
+        # cnxn = pyodbc.connect(cnxn_str)
+
+        # # consulta SQL para obtener la tabla
+        # sql = "SELECT Id, Nombre, codigo, escuela FROM Alumnos"
+
+        # # leer la tabla en un dataframe de Pandas
+        # df_sql = pd.read_sql(sql, cnxn)
+
+        # # cerrar la conexión con la base de datos
+        # cnxn.close()
+
+        # # unir los dataframes utilizando la columna "codigo" como clave de unión
+        # df_merged = pd.merge(calificacion_final, df_sql[['Nombre','codigo', 'escuela']], on='codigo', how='left')
+
+        # # Selecciona alugnos campos
+        # df = df_merged.loc[:, ['codigo', 'Nombre', 'escuela','puntaje']]
+
+
+        # groups = df.groupby(df.escuela)
+
+        # # Prueba
+        # # f_sistemas = groups.get_group("sistemas")
+
+        # # f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
+
+        # # valido
+        # escuelas = df['escuela'].unique()
         
-        a_df.to_csv('TemaA.csv', index=False, sep=",")
-        b_df.to_csv('TemaB.csv', index=False, sep=",")
-        c_df.to_csv('TemaC.csv', index=False, sep=",")
-        d_df.to_csv('TemaD.csv', index=False, sep=",")
-        p_df.to_csv('TemaP.csv', index=False, sep=",")
-        q_df.to_csv('TemaQ.csv', index=False, sep=",")
-        r_df.to_csv('TemaR.csv', index=False, sep=",")
-        s_df.to_csv('TemaS.csv', index=False, sep=",")
-        
-        self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
+        # for i in escuelas:
+        #     especialidad = groups.get_group(i)
+        #     especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
+        #     especialidad.to_csv(f'{i}.csv', index=False, sep=",")
+
+        # self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
 
 
