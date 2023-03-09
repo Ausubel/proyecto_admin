@@ -1,6 +1,5 @@
 import tkinter as tk
 import pandas as pd
-import pyodbc
 from functions import *
 from cargando import *
 from validations import *
@@ -8,7 +7,6 @@ from qualify import *
 from tkinter import filedialog
 from tkinter import messagebox
 import os
-from PIL import Image, ImageTk
 
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
@@ -79,7 +77,7 @@ class Navbar(tk.Frame):
         # Widgets Calificador
 
         tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(30,30), pady=20)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=1, column=0, padx=(30,30), pady=20)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2).grid(row=1, column=0, padx=(30,30), pady=20)
         tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(30,30), pady=20)
 
         # Panel
@@ -184,46 +182,7 @@ class Navbar(tk.Frame):
         # else:
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
-    def save(self):
-        # Abrir conexion
-        cnxn_str = ("Driver={SQL Server Native Client 11.0};"
-            "Server=LAPTOP-8LNIGLG0;"
-            "Database=Admission;"
-            "Trusted_Connection=yes;")
-        cnxn = pyodbc.connect(cnxn_str)
 
-        # consulta SQL para obtener la tabla
-        sql = "SELECT Id, Nombre, codigo, escuela FROM Alumnos"
-
-        # leer la tabla en un dataframe de Pandas
-        df_sql = pd.read_sql(sql, cnxn)
-
-        # cerrar la conexión con la base de datos
-        cnxn.close()
-
-        # unir los dataframes utilizando la columna "codigo" como clave de unión
-        df_merged = pd.merge(calificacion_final, df_sql[['Nombre','codigo', 'escuela']], on='codigo', how='left')
-
-        # Selecciona alugnos campos
-        df = df_merged.loc[:, ['codigo', 'Nombre', 'escuela','puntaje']]
-
-
-        groups = df.groupby(df.escuela)
-
-        # Prueba
-        # f_sistemas = groups.get_group("sistemas")
-
-        # f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
-
-        # valido
-        escuelas = df['escuela'].unique()
-        
-        for i in escuelas:
-            especialidad = groups.get_group(i)
-            especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
-            especialidad.to_csv(f'{i}.csv', index=False, sep=",")
-
-        self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
 root = tk.Tk()
 root.title("AdminUnica")
