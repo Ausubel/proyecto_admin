@@ -43,8 +43,7 @@ def qualify_normal(df_claves, df_identifi, df_respuestas):
     # Se cambia el orden a descendente -> puntaje
     df_final = df_final.sort_values('puntaje', ascending=False)
 
-    print(df_final)
     # Se crean grupos de DataFrames
     groups = df_final.groupby(df_final.tema)
     df_final.to_csv('General.csv', index=False, sep=",")
-    return df_final
+    return groups

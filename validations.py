@@ -147,7 +147,9 @@ def duplicated_litio_solution(df_respuestas):
 
 def applicant_card_solution(df_identifi, df_postulantes):
     men = ''
+
     df_identifi['codigo'] = df_identifi['codigo'].astype('int64')
+
     codigos_identifi = df_identifi['codigo'].unique()
     codigos_postulantes = df_postulantes['codigo'].unique()
 

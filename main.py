@@ -1,6 +1,7 @@
 import tkinter as tk
 import pandas as pd
 from cargando import *
+from modificar import *
 from validations import *
 from qualify import *
 from tkinter import filedialog
@@ -76,20 +77,35 @@ class Navbar(tk.Frame):
         self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(30,30), pady=50)
         
         # Widgets Calificador
-
-        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
+        self.container = tk.Frame(self.qualify_panel, borderwidth=1, relief=tk.RIDGE, background="#F0F0F0", highlightbackground="#D9D9D9")
+        self.container.grid(row=0, column=0, padx=(30,30), pady=50)
+        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=1, column=0, padx=(30,30), pady=20)
         # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
         # tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
+        # Crear un Frame para los elementos del contenedor
         
-        tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
-        tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
-        self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
-        tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
-        self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=6, column=0, pady=30)
+
+        self.listbox = tk.Listbox(self.container)
+        self.listbox = tk.Listbox(self.container, width=10, height=5, selectmode="multiple")
+        self.listbox.pack(side="left", padx=10, pady=10)
+        
+        [self.listbox.insert("end", c) for c in TEMA]
+
+        self.entry = tk.Entry(self.container)
+        self.entry.pack(side="left", padx=10)
+
+        self.add_button = tk.Button(self.container, text="Modificar", command=lambda: self.modificar(self.listbox, self.entry))
+        self.add_button.pack(side="left", padx=10)
+        
+        # tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
+        # tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
+        # self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
+        # tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
+        # self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=3, column=0, pady=(50, 30))
 
         # Panel
-        self.file_entry3 = tk.Text(self.qualify_panel, width=97, height=25)
+        self.file_entry3 = tk.Text(self.qualify_panel, width=70, height=25)
         self.file_entry3.configure(bg="#FCF3EA")
         self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(30,30), pady=50)
 
@@ -97,11 +113,17 @@ class Navbar(tk.Frame):
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
         
-        
-        # self.show_welcome_message()
+    def modificar(self,listbox, entry):
+        preguntas = entry.get()
+        selection = listbox.curselection()
+        print(DF_CLAVES)
+        for index in selection:
+            DF_CLAVES.loc[DF_CLAVES['tema_clave'] == listbox.get(index), 'solucion'] = ''.join(mod_tema(listbox.get(index),preguntas,DF_CLAVES))
+            self.file_entry3.insert("end", f"Claves modificadas {listbox}:{preguntas}...\n")
+        print(DF_CLAVES)
+        return
 
     def show_welcome_message(self):
-    
         messagebox.showinfo("Bienvenido", "¡Bienvenido a AdminUni!")
         self.show_file()
 
@@ -120,9 +142,7 @@ class Navbar(tk.Frame):
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
-            # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_CLAVES = carga.leer_claves(ruta_archivo)
-            # self.file_entry1.delete("1.0", "end")
             self.file_entry1.insert("end", f"\nSe cargaron las claves ..")
             return 
 
@@ -131,9 +151,7 @@ class Navbar(tk.Frame):
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, RESPUESTAS)
         if ruta_archivo != "":
-            # messagebox.showerror("ESTA ES TU RUTA", f"{ruta_archivo}")
             DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
-            # self.file_entry1.delete("2.0", "end")
             self.file_entry1.insert("end", f"\nSe cargaron las respuestas ..")
             return 
 
@@ -154,6 +172,7 @@ class Navbar(tk.Frame):
         if ruta_archivo != "":
             DF_POSTULANTES = pd.read_csv(ruta_archivo)
             self.file_entry2.insert("end", f"\nArchivo postulantes cargado ..\n")
+            return
         
     def show_file(self):
         self.file_panel.pack(side='top', fill='both', expand=True)
@@ -198,6 +217,27 @@ class Navbar(tk.Frame):
         #     self.file_entry3.insert("end", f"\nAlgo salio mal al calificar")
         # else:
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
+    def save(self):
+        # res = save_as(calificacion_final)
+        a_df = calificacion_final.get_group("A")
+        b_df = calificacion_final.get_group("B")
+        c_df = calificacion_final.get_group("C")
+        d_df = calificacion_final.get_group("D")
+        p_df = calificacion_final.get_group("P")
+        q_df = calificacion_final.get_group("Q")
+        r_df = calificacion_final.get_group("R")
+        s_df = calificacion_final.get_group("S")
+        
+        a_df.to_csv('TemaA.csv', index=False, sep=",")
+        b_df.to_csv('TemaB.csv', index=False, sep=",")
+        c_df.to_csv('TemaC.csv', index=False, sep=",")
+        d_df.to_csv('TemaD.csv', index=False, sep=",")
+        p_df.to_csv('TemaP.csv', index=False, sep=",")
+        q_df.to_csv('TemaQ.csv', index=False, sep=",")
+        r_df.to_csv('TemaR.csv', index=False, sep=",")
+        s_df.to_csv('TemaS.csv', index=False, sep=",")
+        
+        self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
 
 
 
