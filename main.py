@@ -77,9 +77,16 @@ class Navbar(tk.Frame):
         
         # Widgets Calificador
 
-        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(30,30), pady=20)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2).grid(row=1, column=0, padx=(30,30), pady=20)
-        tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(30,30), pady=20)
+        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=0, column=0, padx=(100,50), pady=0)
+        # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
+        # tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
+        
+        tk.Label(self.qualify_panel, text="Agrega puntajes adicionales").grid(row=1, column=0, pady=0, padx=(0,0))
+        tk.Label(self.qualify_panel, text="Agrega Tema").grid(row=2, column=0, pady=0, padx=(0,0))
+        self.input1 = tk.Entry(self.qualify_panel).grid(row=3, column=0)
+        tk.Label(self.qualify_panel, text="Agrega puntaje").grid(row=4, column=0, pady=0, padx=(0,0))
+        self.input2 = tk.Entry(self.qualify_panel).grid(row=5, column=0)
+        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=6, column=0, pady=30)
 
         # Panel
         self.file_entry3 = tk.Text(self.qualify_panel, width=97, height=25)
