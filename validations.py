@@ -145,8 +145,27 @@ def duplicated_litio_solution(df_respuestas):
         return "No se encontraron duplicados en la columna 'lito'"
 # 4-Validar carnet postulante: Devuelve toda la info del postulante no identificado
 
-def applicant_card_solution(df_respuestas):
-    pass
+def applicant_card_solution(df_identifi, df_postulantes):
+    men = ''
+    df_identifi['codigo'] = df_identifi['codigo'].astype('int64')
+    codigos_identifi = df_identifi['codigo'].unique()
+    codigos_postulantes = df_postulantes['codigo'].unique()
+
+    codigos_faltantes_identifi = set(codigos_postulantes) - set(codigos_identifi)
+    codigos_faltantes_postulantes = set(codigos_identifi) - set(codigos_postulantes)
+
+    if len(codigos_faltantes_identifi) == 0:
+        men += "No hay códigos faltantes en df_identifi que no estén en df_postulantes." + '\n'
+    else:
+        men += "Los siguientes códigos en df_postulantes no están presentes en df_identifi:" + '\n'
+        men += str(df_postulantes.loc[df_postulantes['codigo'].isin(codigos_faltantes_identifi)]) + '\n'
+
+    if len(codigos_faltantes_postulantes) == 0:
+        men += "No hay códigos faltantes en df_postulantes que no estén en df_identifi." + '\n'
+    else:
+        men += "Los siguientes códigos en df_identifi no están presentes en df_postulantes:" + '\n'
+        men += str(df_identifi.loc[df_identifi['codigo'].isin(codigos_faltantes_postulantes)]) + '\n'
+    return men
 
 # 5-Validar Lito no localizado
 def sin_pareja(df_id, df_resp):

@@ -11,12 +11,14 @@ import os
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas.sdf"
 IDENTIFI= "identifi.sdf"
+POSTULANTES = "postulantes.csv"
 TEMA = "ABCDPQRS"
 PATRON_CLAVES = 'TRQSP '
 PATRON_RESPUESTAS = 'TRQSP *'
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
+DF_POSTULANTES = pd.DataFrame()
 calificacion_final = pd.DataFrame()
 NAV_BG = '#FF010B'
 BTN_BG = '#dc3545'
@@ -57,7 +59,7 @@ class Navbar(tk.Frame):
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(30,30), pady=50)
         tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(30,30), pady=20)
         
-        self.file_entry1 = tk.Text(self.file_panel, width=48, height=25)
+        self.file_entry1 = tk.Text(self.file_panel, width=97, height=25)
         self.file_entry1.configure(bg="#FCF3EA")
         self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(30,30), pady=50)
 
@@ -70,7 +72,7 @@ class Navbar(tk.Frame):
         tk.Button(self.validation_panel, text='Validar lito no localizado', width=20, height=2, command=self.validate5).grid(row=4, column=0, padx=(30,30), pady=20)
         tk.Button(self.validation_panel, text='Limpiar', width=20, height=2, command=self.clean2).grid(row=5, column=0, padx=(30,30), pady=20)
 
-        self.file_entry2 = tk.Text(self.validation_panel, width=48, height=25)
+        self.file_entry2 = tk.Text(self.validation_panel, width=97, height=25)
         self.file_entry2.configure(bg="#FCF3EA")
         self.file_entry2.grid(row=0, column=1, rowspan=6, padx=(30,30), pady=50)
         
@@ -81,7 +83,7 @@ class Navbar(tk.Frame):
         tk.Button(self.qualify_panel, text='Limpiar', width=20, height=2, command=self.clean3).grid(row=2, column=0, padx=(30,30), pady=20)
 
         # Panel
-        self.file_entry3 = tk.Text(self.qualify_panel, width=48, height=25)
+        self.file_entry3 = tk.Text(self.qualify_panel, width=97, height=25)
         self.file_entry3.configure(bg="#FCF3EA")
         self.file_entry3.grid(row=0, column=1, rowspan=4, padx=(30,30), pady=50)
 
@@ -127,7 +129,6 @@ class Navbar(tk.Frame):
             DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
             # self.file_entry1.delete("2.0", "end")
             self.file_entry1.insert("end", f"\nSe cargaron las respuestas ..")
-
             return 
 
     def select_folder_identifi(self):
@@ -139,6 +140,15 @@ class Navbar(tk.Frame):
             self.file_entry1.insert("end", f"\nSe cargaron los identificadores ..")
             return
 
+    def select_folder_postulantes(self):
+        global DF_POSTULANTES
+        folder_path = filedialog.askdirectory()
+        file_name = 'postulantes.csv'
+        ruta_archivo = os.path.join(folder_path, file_name)
+        if ruta_archivo != "":
+            DF_POSTULANTES = pd.read_csv(ruta_archivo)
+            self.file_entry2.insert("end", f"\nArchivo postulantes cargado ..\n")
+        
     def show_file(self):
         self.file_panel.pack(side='top', fill='both', expand=True)
         self.validation_panel.pack_forget()
@@ -166,7 +176,8 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate4(self):
-        res = applicant_card_solution(DF_RESPUESTAS)
+        self.select_folder_postulantes()
+        res = applicant_card_solution(DF_IDENTIFI, DF_POSTULANTES)
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
@@ -186,7 +197,7 @@ class Navbar(tk.Frame):
 
 root = tk.Tk()
 root.title("AdminUnica")
-root.geometry("660x520")
+root.geometry("1100x600")
 navbar = Navbar(root)
 navbar.pack(side='top', fill='x')
 root.resizable(0,0)
