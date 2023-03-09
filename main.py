@@ -1,6 +1,5 @@
 import tkinter as tk
 import pandas as pd
-from functions import *
 from cargando import *
 from validations import *
 from qualify import *
@@ -23,7 +22,7 @@ calificacion_final = pd.DataFrame()
 NAV_BG = '#FF010B'
 BTN_BG = '#dc3545'
 BTN_FG = '#FCF3EA'
-PANEL_BG = '#E3882E'
+PANEL_BG = '#D88756'
 PANEL_WIDTH = 650
 PANEL_HEIGHT = 20
 
