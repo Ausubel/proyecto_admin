@@ -79,11 +79,6 @@ class Navbar(tk.Frame):
         # Widgets Calificador
         self.container = tk.Frame(self.qualify_panel, borderwidth=1, relief=tk.RIDGE, background="#F0F0F0", highlightbackground="#D9D9D9")
         self.container.grid(row=0, column=0, padx=(30,30), pady=50)
-        tk.Button(self.qualify_panel, text='Calificar normal', width=20, height=2, command=self.qualify).grid(row=1, column=0, padx=(30,30), pady=20)
-        # tk.Button(self.qualify_panel, text='Calificar anonima', width=20, height=2).grid(row=1, column=0, padx=(100,50), pady=50)
-        # tk.Button(self.qualify_panel, text='Calificar ambos', width=20, height=2).grid(row=2, column=0, padx=(100,50), pady=50)
-        # Crear un Frame para los elementos del contenedor
-        
 
         self.listbox = tk.Listbox(self.container)
         self.listbox = tk.Listbox(self.container, width=10, height=5, selectmode="multiple")
@@ -96,7 +91,7 @@ class Navbar(tk.Frame):
 
         self.add_button = tk.Button(self.container, text="Modificar", command=lambda: self.modificar(self.listbox, self.entry))
         self.add_button.pack(side="left", padx=10)
-        tk.Button(self.qualify_panel, text='Guardar Resultado', width=20, height=2, command=self.save).grid(row=3, column=0, pady=(50, 30))
+        tk.Button(self.qualify_panel, text='Calificar', width=20, height=2, command=self.qualify).grid(row=1, column=0, pady=(50, 30))
 
         # Panel
         self.file_entry3 = tk.Text(self.qualify_panel, width=70, height=25)
@@ -110,16 +105,14 @@ class Navbar(tk.Frame):
     def modificar(self,listbox, entry):
         preguntas = entry.get()
         selection = listbox.curselection()
-        print(DF_CLAVES)
         for index in selection:
             DF_CLAVES.loc[DF_CLAVES['tema_clave'] == listbox.get(index), 'solucion'] = ''.join(mod_tema(listbox.get(index),preguntas,DF_CLAVES))
-            self.file_entry3.insert("end", f"Claves modificadas {listbox}:{preguntas}...\n")
-        print(DF_CLAVES)
+            self.file_entry3.insert("end", f"Claves modificadas {listbox.get(index)}:{preguntas}...\n")
         return
 
-    def show_welcome_message(self):
-        messagebox.showinfo("Bienvenido", "¡Bienvenido a AdminUni!")
-        self.show_file()
+    # def show_welcome_message(self):
+    #     messagebox.showinfo("Bienvenido", "¡Bienvenido a AdminUni!")
+    #     self.show_file()
 
 
     def clean1(self):
@@ -208,6 +201,16 @@ class Navbar(tk.Frame):
         global calificacion_final
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
+        
+        df = pd.read_excel('base.xlsx')
+        df['codigo'] = df['codigo'].astype(int)
+        # Hacer el left anti join
+        merged = pd.merge(df, DF_IDENTIFI[['codigo']], how='left', left_on='codigo', right_on='codigo', indicator=True)
+        # Filtrar los registros que no están en df_identifi
+        result = merged[merged['_merge'] == 'left_only'][df.columns]
+        # Imprimir el resultado
+        print(result)
+        
     def save(self):
         pass
         # # Abrir conexion

@@ -88,7 +88,7 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
     if invalid_rows_tema_respuestas.empty:
         men += 'Hecho\n'
     else:
-        men += 'Error en tema\n' + invalid_rows_tema_respuestas['tema'].to_string(header=False) + '\n'
+        men += 'Error en tema\n' + invalid_rows_tema_respuestas['lito'].to_string(header=False) + '\n'
 
     # Verificando respuesta
     valid_rows_respuestas = df_respuestas['respuesta'].apply(validar_solucion_respuesta, args=(patron_respuestas,))
