@@ -161,10 +161,11 @@ class Navbar(tk.Frame):
     def select_folder_postulantes(self):
         global DF_POSTULANTES
         folder_path = filedialog.askdirectory()
-        file_name = 'postulantes.csv'
+        file_name = 'base.xlsx'
         ruta_archivo = os.path.join(folder_path, file_name)
         if ruta_archivo != "":
-            DF_POSTULANTES = pd.read_csv(ruta_archivo)
+            # DF_POSTULANTES = pd.read_csv(ruta_archivo)
+            DF_POSTULANTES = pd.read_excel(ruta_archivo)
             self.file_entry2.insert("end", f"\nArchivo postulantes cargado ..\n")
             return
         
@@ -191,7 +192,7 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate3(self):
-        res = duplicated_litio_solution(DF_RESPUESTAS)
+        res = duplicated_litio_solution(DF_IDENTIFI,DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate4(self):
@@ -200,9 +201,8 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
-        res = sin_pareja(DF_IDENTIFI, DF_RESPUESTAS)
+        res = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry2.insert("end", f"\n{res}")
-        pass
 
     def qualify(self):
         global calificacion_final

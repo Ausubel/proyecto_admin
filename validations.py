@@ -4,6 +4,17 @@ import re
 # 1-Estructura: click en boton y muestre la fila que no cumple la condicion
 
 def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_claves, patron_respuestas):
+    # Cambiando indice
+    df_claves = df_claves.reset_index(drop=True)
+    df_claves.index += 1
+
+    df_identifi = df_identifi.reset_index(drop=True)
+    df_identifi.index += 1
+
+    df_respuestas = df_respuestas.reset_index(drop=True)
+    df_respuestas.index += 1
+
+
     men = 'Verificando claves'
     men += '\n'
 
@@ -63,9 +74,9 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
     
     # Verificando codigo
     valid_codigo_identifi = pd.to_numeric(df_identifi['codigo'], errors='coerce').notnull()
-    valid_codigo_identifi_len = df_identifi['codigo'].apply(lambda x: len(x) == 6)
-    invalid_codigo_identifi = df_identifi[~valid_codigo_identifi]
-    invalid_codigo_identifi_len  = df_identifi[~valid_codigo_identifi_len]
+    valid_codigo_identifi_len = df_identifi['codigo'].apply(lambda x: len(x) == 8)
+    # invalid_codigo_identifi = df_identifi[~valid_codigo_identifi]
+    # invalid_codigo_identifi_len  = df_identifi[~valid_codigo_identifi_len]
     invalid_rows_codigo_identifi = df_identifi[~(valid_codigo_identifi & valid_codigo_identifi_len)]
     if invalid_rows_codigo_identifi.empty:
         men += 'Hecho\n'
@@ -123,30 +134,49 @@ def duplicated_code_solution(df_identifi):
         res += "No se encontraron duplicados en la columna 'codigo'"
     return res
 # 3-Validar duplicados de litos: Devuelve la lista de los duplicados y su posicion
-def duplicated_litio_solution(df_respuestas):
-    duplicados = df_respuestas.duplicated(subset=['lito'], keep=False)
-    # print(duplicados)
-    # print(duplicados.any())
-    if duplicados.any():
-        # print("Se encontraron duplicados en la columna 'lito':\n")
-        datos_duplicados = {}
-        for lito, df_lito in df_respuestas[duplicados].groupby('lito'):
-            if len(df_lito) > 1:
-                datos_duplicados[lito] = {'tema': [], 'respuestas': [], 'indices': []}
-                for idx, fila in enumerate(df_lito.itertuples(), start=1):
-                    datos_duplicados[lito]['tema'].append(fila.tema)
-                    datos_duplicados[lito]['respuestas'].append(fila.respuesta)
-                    datos_duplicados[lito]['indices'].append(fila.Index)
-                df_duplicados = pd.DataFrame({'lito': [lito]*len(df_lito), 'tema': datos_duplicados[lito]['tema'], 'respuestas': datos_duplicados[lito]['respuestas'], 'fila': datos_duplicados[lito]['indices']})
-                df_duplicados += df_duplicados[['lito', 'tema', 'respuestas', 'fila']]
-        return f"Se encontraron duplicados en la columna 'lito':\n{df_duplicados}"
-    
+def duplicated_litio_solution(df_identifi,df_respuestas):
+    men = ""
+    # cambia el indice
+    df_identifi = df_identifi.reset_index(drop=True)
+    df_identifi.index += 1
+
+    # Verifica si hay duplicados en la columna 'lito'
+    duplicados = df_identifi.duplicated(subset=['lito'], keep=False)
+
+    # Filtra las filas que contienen duplicados
+    filas_con_duplicados = df_identifi.where(duplicados).dropna()
+
+
+    if filas_con_duplicados.empty:
+        men += f"Duplicado litio identificador\nNo hay duplicados\n"
     else:
-        return "No se encontraron duplicados en la columna 'lito'"
+        men += f"Duplicado litio identificador\n{str(filas_con_duplicados)}\n"
+
+    # cambia el indice
+    df_respuestas = df_respuestas.reset_index(drop=True)
+    df_respuestas.index += 1
+
+    # Verifica si hay duplicados en la columna 'lito'
+    duplicados = df_respuestas.duplicated(subset=['lito'], keep=False)
+
+    # Filtra las filas que contienen duplicados
+    filas_con_duplicados = df_respuestas.where(duplicados).dropna()
+
+
+    if filas_con_duplicados.empty:
+        men += f"Duplicado litio respuesta\nNo hay duplicados\n"
+    else:
+        men += f"Duplicado litio respuesta\n{str(filas_con_duplicados)}\n"
+
+    return men
 # 4-Validar carnet postulante: Devuelve toda la info del postulante no identificado
 
 def applicant_card_solution(df_identifi, df_postulantes):
     men = ''
+    df_identifi = df_identifi.reset_index(drop=True)
+    df_identifi.index += 1
+    df_postulantes = df_postulantes.reset_index(drop=True)
+    df_postulantes.index += 1
 
     df_identifi['codigo'] = df_identifi['codigo'].astype('int64')
 
@@ -170,26 +200,24 @@ def applicant_card_solution(df_identifi, df_postulantes):
     return men
 
 # 5-Validar Lito no localizado
-def sin_pareja(df_id, df_resp):
-    ser_lit_id = pd.Series(df_id['lito'], index=range(len(df_id['lito'])))
-    ser_lit_re = pd.Series(df_resp['lito'], index=range(len(df_resp['lito'])))
-    ser_merge = ser_lit_id.isin(ser_lit_re)
-    no_pareja = 'orden | litho  | tema | codigo \n'
-    for i in range(len(df_id)):
-        if not ser_merge[i]:
-            no_pareja += f'{i+1}  | {df_id.iloc[i,0]} |  {df_id.iloc[i,1]}   | {df_id.iloc[i,2]} \n'
-        else:
-            no_pareja = 'Todos los litos estan localizados'
-    return no_pareja
+def lito_not_located(df_identifi, df_respuestas):
+    # Unir los dataframes y filtrar las filas no localizadas
+    merged = pd.merge(df_identifi, df_respuestas, on=['lito', 'tema'], how='outer', indicator=True)
+    no_localizados = merged.query("_merge == 'right_only'").loc[:, ['lito']]
+    men = ''
+    # Mostrar los resultados
+    if no_localizados.empty:
+        men += "Todos han sido localizados de identificador a respuesta"
+    else:
+        men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados['lito']})}"
 
-# def litos_solution(df_identifi, df_respuestas):
-#     # crea una serie booleana que indica si cada valor de la primera columna de df_identifi está en la primera columna de df_respuestas
-#     identifi_in_respuestas = df_identifi.iloc[:, 0].isin(df_respuestas.iloc[:, 0])
-#     # crea una lista con las filas de df_identifi que no tienen coincidencias
-#     exce = [f'{i + 1}: No se encontro {df_identifi.iloc[i, 2]}.\n' for i, val in enumerate(identifi_in_respuestas) if not val]
-#     # une los elementos de la lista en una cadena de texto
-#     exce_str = ''.join(exce)
-#     if exce_str!='':
-#         return exce_str
-#     else:
-#         return 'Todos los litos estan localizados'
+    # Unir los dataframes y filtrar las filas no localizadas
+    merged = pd.merge(df_respuestas, df_identifi, on=['lito', 'tema'], how='outer', indicator=True)
+    no_localizados = merged.query("_merge == 'right_only'").loc[:, ['lito']]
+
+    # Mostrar los resultados
+    if no_localizados.empty:
+        men += "Todos han sido localizados de respuestas a identificador"
+    else:
+        men += f"DataFrame no localizado de respuestas a identificador\n{pd.DataFrame({'lito': no_localizados['lito']})}"
+    return men
