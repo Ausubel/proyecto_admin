@@ -4,16 +4,6 @@ import re
 # 1-Estructura: click en boton y muestre la fila que no cumple la condicion
 
 def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_claves, patron_respuestas):
-    # Cambiando indice
-    df_claves = df_claves.reset_index(drop=True)
-    df_claves.index += 1
-
-    df_identifi = df_identifi.reset_index(drop=True)
-    df_identifi.index += 1
-
-    df_respuestas = df_respuestas.reset_index(drop=True)
-    df_respuestas.index += 1
-
 
     men = 'Verificando claves'
     men += '\n'
@@ -24,7 +14,8 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
         if re.match(r'^['+patron+' ]*$', str(solucion)) is None:
             return False
         return True
-    
+    # CLAVES
+
     # Verificando lito
     lito_clave_esnum = pd.to_numeric(df_claves['lito_clave'], errors='coerce').notnull()
     invalid_rows = df_claves[~lito_clave_esnum]
@@ -34,12 +25,12 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
         men += 'Error en lito\n' + invalid_rows['lito_clave'].to_string(header=False) + '\n'
 
     # Verificando tema
-    valid_tema = df_identifi['tema'].isin([i for i in tema])
-    invalid_rows = df_identifi[~valid_tema]
+    valid_tema = df_claves['tema_clave'].isin([i for i in tema])
+    invalid_rows = df_claves[~valid_tema]
     if invalid_rows.empty:
         men += 'Hecho\n'
     else:
-        men += 'Error en lito\n' + invalid_rows['tema'].to_string(header=False) + '\n'
+        men += 'Error en lito\n' + invalid_rows['tema_clave'].to_string(header=False) + '\n'
 
     # Verificando solucion
 
@@ -54,8 +45,8 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
 
     men += 'Verificando identificaciones'
     men += '\n'
-
-    # Verificando identificaciones
+####################################################################
+    # IDENTIFICACIONES
     # Verificando lito
     valid_lito_identifi = pd.to_numeric(df_identifi['lito'], errors='coerce').notnull()
     invalid_rows_lito_identifi = df_identifi[~valid_lito_identifi]
@@ -85,7 +76,7 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
 
     men += 'Verificando Respuestas'
     men += '\n'
-
+####################################################################
     # Verificando lito
     valid_lito_respuestas = pd.to_numeric(df_respuestas['lito'], errors='coerce').notnull()
     valid_codigo_identifi_len = df_identifi['lito'].apply(lambda x: len(x) == 6)
@@ -96,12 +87,12 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
         men += 'Error en tema\n' + invalid_lito_respuesta['lito'].to_string(header=False) + '\n'
 
     # Verificando tema
-    valid_tema_respuestas = df_respuestas['tema'].isin([i for i in tema])
-    invalid_rows_tema_respuestas = df_respuestas[~valid_tema_respuestas]
-    if invalid_rows_codigo_identifi.empty:
+    valid_tema_respuesta = df_respuestas['tema'].isin([i for i in tema])
+    invalid_rows_tema_respuestas = df_respuestas[~valid_tema_respuesta]
+    if invalid_rows_tema_respuestas.empty:
         men += 'Hecho\n'
     else:
-        men += 'Error en tema\n' + invalid_rows_codigo_identifi['tema'].to_string(header=False) + '\n'
+        men += 'Error en tema\n' + invalid_rows_tema_respuestas['tema'].to_string(header=False) + '\n'
 
     # Verificando respuesta
     valid_rows_respuestas = df_respuestas['respuesta'].apply(validar_solucion_respuesta, args=(patron_respuestas,))
@@ -173,16 +164,13 @@ def duplicated_litio_solution(df_identifi,df_respuestas):
 
 def applicant_card_solution(df_identifi, df_postulantes):
     men = ''
-    df_identifi = df_identifi.reset_index(drop=True)
-    df_identifi.index += 1
-    df_postulantes = df_postulantes.reset_index(drop=True)
-    df_postulantes.index += 1
 
     df_identifi['codigo'] = df_identifi['codigo'].astype('int64')
 
     codigos_identifi = df_identifi['codigo'].unique()
     codigos_postulantes = df_postulantes['codigo'].unique()
-
+    print(codigos_identifi)
+    print(codigos_postulantes)
     codigos_faltantes_identifi = set(codigos_postulantes) - set(codigos_identifi)
     codigos_faltantes_postulantes = set(codigos_identifi) - set(codigos_postulantes)
 
@@ -199,7 +187,7 @@ def applicant_card_solution(df_identifi, df_postulantes):
         men += str(df_identifi.loc[df_identifi['codigo'].isin(codigos_faltantes_postulantes)]) + '\n'
     return men
 
-# 5-Validar Lito no localizado
+# 5-Validar Lito no localizado o tema inconsistente
 def lito_not_located(df_identifi, df_respuestas):
     # Unir los dataframes y filtrar las filas no localizadas
     merged = pd.merge(df_identifi, df_respuestas, on=['lito', 'tema'], how='outer', indicator=True)
@@ -207,9 +195,9 @@ def lito_not_located(df_identifi, df_respuestas):
     men = ''
     # Mostrar los resultados
     if no_localizados.empty:
-        men += "Todos han sido localizados de identificador a respuesta"
+        men += "Todos han sido localizados de identificador a respuesta\n"
     else:
-        men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados['lito']})}"
+        men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados['lito']})}\n"
 
     # Unir los dataframes y filtrar las filas no localizadas
     merged = pd.merge(df_respuestas, df_identifi, on=['lito', 'tema'], how='outer', indicator=True)
@@ -217,7 +205,7 @@ def lito_not_located(df_identifi, df_respuestas):
 
     # Mostrar los resultados
     if no_localizados.empty:
-        men += "Todos han sido localizados de respuestas a identificador"
+        men += "Todos han sido localizados de respuestas a identificador\n"
     else:
-        men += f"DataFrame no localizado de respuestas a identificador\n{pd.DataFrame({'lito': no_localizados['lito']})}"
+        men += f"DataFrame no localizado de respuestas a identificador\n{pd.DataFrame({'lito': no_localizados['lito']})}\n"
     return men
