@@ -181,40 +181,24 @@ class Navbar(tk.Frame):
 
     def validate1(self):
         res = estructure_solution(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS, TEMA, PATRON_CLAVES, PATRON_RESPUESTAS)
-        self.file_entry2.insert("end", f"\n{res}")
+        self.file_entry2.insert("end", f"\n************** VALIDACION 1 **************\n{res}")
     def validate2(self):
         res = duplicated_code_solution(DF_IDENTIFI)
-        self.file_entry2.insert("end", f"\n{res}")
+        self.file_entry2.insert("end", f"\n************** VALIDACION 2 **************\n{res}")
 
     def validate3(self):
         res = duplicated_litio_solution(DF_IDENTIFI,DF_RESPUESTAS)
-        self.file_entry2.insert("end", f"\n{res}")
+        self.file_entry2.insert("end", f"\n************** VALIDACION 3 **************\n{res}")
 
     def validate4(self):
         self.select_folder_postulantes()
         res = applicant_card_solution(DF_IDENTIFI, DF_POSTULANTES)
-        self.file_entry2.insert("end", f"\n{res}")
+        self.file_entry2.insert("end", f"\n************** VALIDACION 4 **************\n{res}")
 
     def validate5(self):
         global DF_ANULADOS
-        res, codigos_anulados = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS)
-        DF_IDENTIFI['codigo'] = DF_IDENTIFI['codigo'].astype(int)
-        df = pd.read_excel('base.xlsx')
-        # Utiliza merge() para hacer una intersección entre los dataframes
-        DF_ANULADOS = pd.merge(df,codigos_anulados, on='codigo')
-        DF_ANULADOS = DF_ANULADOS[['codigo', 'AP_PATERNO', 'AP_MATERNO', 'NOMBRE', 'CARRERA']]
-        # Imprime el resultado
-        print(f"Estos son anulados \n{DF_ANULADOS}")
-        self.file_entry2.insert("end", f"\n{res}")
-        
-
-
-    def qualify(self):
-        global calificacion_final
-        global DF_AUSENTE
-        calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
-        self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
-        
+        res, DF_ANULADOS = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS,DF_POSTULANTES)
+                
         df = pd.read_excel('base.xlsx')
 
         # Convertir la columna 'codigo' a tipo object
@@ -227,8 +211,19 @@ class Navbar(tk.Frame):
         # Filtrar los registros que no están en df_identifi
         DF_AUSENTE = merged[merged['_merge'] == 'left_only'][df.columns] ############ AUSENTE
 
-        print(DF_AUSENTE)
-        print(DF_ANULADOS)
+        self.file_entry2.insert("end", f"\n************** VALIDACION 5 **************\n{res}")
+
+        print(f"Estos son ausentes \n\n{DF_AUSENTE}")
+        print(f"Estos son anulados \n\n{DF_ANULADOS}")
+        return
+
+
+    def qualify(self):
+        global calificacion_final
+        global DF_AUSENTE
+        calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
+        self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
+
         
     def save(self):
         pass
