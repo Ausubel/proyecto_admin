@@ -191,17 +191,18 @@ def lito_not_located(df_identifi, df_respuestas):
     men = ''
     # Mostrar los resultados
     if no_localizados.empty:
-        men += "Todos han sido localizados de identificador a respuesta\n"
-    else:
-        men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados['lito']})}\n"
-
-    # Unir los dataframes y filtrar las filas no localizadas
-    merged = pd.merge(df_respuestas, df_identifi, on=['lito', 'tema'], how='outer', indicator=True)
-    no_localizados = merged.query("_merge == 'right_only'").loc[:, ['lito']]
-
-    # Mostrar los resultados
-    if no_localizados.empty:
         men += "Todos han sido localizados de respuestas a identificador\n"
     else:
         men += f"DataFrame no localizado de respuestas a identificador\n{pd.DataFrame({'lito': no_localizados['lito']})}\n"
-    return men
+    # Unir los dataframes y filtrar las filas no localizadas
+    merged = pd.merge(df_respuestas, df_identifi, on=['lito', 'tema'], how='outer', indicator=True)
+    no_localizados1 = merged.query("_merge == 'right_only'").loc[:, ['lito']]
+
+    # Mostrar los resultados
+    if no_localizados1.empty:
+        men += "Todos han sido localizados de identificador a respuesta\n"
+    else:
+        men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados1['lito']})}\n"
+    anulados = pd.DataFrame(no_localizados1)
+    anulados = pd.merge(df_identifi,anulados, on=['lito'], how='inner')
+    return men,anulados

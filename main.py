@@ -19,6 +19,8 @@ DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
 DF_POSTULANTES = pd.DataFrame()
+DF_ANULADOS = pd.DataFrame()
+DF_AUSENTE = pd.DataFrame()
 calificacion_final = pd.DataFrame()
 NAV_BG = '#FF010B'
 BTN_BG = '#dc3545'
@@ -194,22 +196,39 @@ class Navbar(tk.Frame):
         self.file_entry2.insert("end", f"\n{res}")
 
     def validate5(self):
-        res = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS)
+        global DF_ANULADOS
+        res, codigos_anulados = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS)
+        DF_IDENTIFI['codigo'] = DF_IDENTIFI['codigo'].astype(int)
+        df = pd.read_excel('base.xlsx')
+        # Utiliza merge() para hacer una intersección entre los dataframes
+        DF_ANULADOS = pd.merge(df,codigos_anulados, on='codigo')
+        DF_ANULADOS = DF_ANULADOS[['codigo', 'AP_PATERNO', 'AP_MATERNO', 'NOMBRE', 'CARRERA']]
+        # Imprime el resultado
+        print(f"Estos son anulados \n{DF_ANULADOS}")
         self.file_entry2.insert("end", f"\n{res}")
+        
+
 
     def qualify(self):
         global calificacion_final
+        global DF_AUSENTE
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
         
         df = pd.read_excel('base.xlsx')
+
+        # Convertir la columna 'codigo' a tipo object
         df['codigo'] = df['codigo'].astype(int)
+        DF_IDENTIFI['codigo'] = DF_IDENTIFI['codigo'].astype(int)
+
         # Hacer el left anti join
-        merged = pd.merge(df, DF_IDENTIFI[['codigo']], how='left', left_on='codigo', right_on='codigo', indicator=True)
+        merged = pd.merge(df,DF_IDENTIFI[['codigo']], how='left', left_on='codigo', right_on='codigo', indicator=True)
+
         # Filtrar los registros que no están en df_identifi
-        result = merged[merged['_merge'] == 'left_only'][df.columns]
-        # Imprimir el resultado
-        print(result)
+        DF_AUSENTE = merged[merged['_merge'] == 'left_only'][df.columns] ############ AUSENTE
+
+        print(DF_AUSENTE)
+        print(DF_ANULADOS)
         
     def save(self):
         pass
