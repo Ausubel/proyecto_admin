@@ -5,7 +5,8 @@ import re
 
 def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_claves, patron_respuestas):
     men = 'VERIFICANDO CLAVES\n'
-
+    lito_len = 4
+    codigo_len = 8
     def validar_solucion_respuesta(solucion,patron):
         if len(solucion) != 100:
             return False
@@ -63,18 +64,18 @@ def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_clav
     
     # Verificando codigo
     valid_codigo_identifi = pd.to_numeric(df_identifi['codigo'], errors='coerce').notnull()
-    valid_codigo_identifi_len = df_identifi['codigo'].apply(lambda x: len(x) == 8)
+    valid_codigo_identifi_len = df_identifi['codigo'].apply(lambda x: len(x) == codigo_len)
     invalid_rows_codigo_identifi = df_identifi[~(valid_codigo_identifi & valid_codigo_identifi_len)]
     if invalid_rows_codigo_identifi.empty:
         men += 'Hecho\n'
     else:
-        men += 'Error en tema\n' + invalid_rows_codigo_identifi['codigo'].to_string(header=False) + '\n'
+        men += 'Error en codigo\n' + invalid_rows_codigo_identifi['codigo'].to_string(header=False) + '\n'
 
     men += 'VERIFICANDO RESPUESTA\n'
 ####################################################################
     # Verificando lito
     valid_lito_respuestas = pd.to_numeric(df_respuestas['lito'], errors='coerce').notnull()
-    valid_lito_respuestas_len = df_respuestas['lito'].apply(lambda x: len(x) == 6)
+    valid_lito_respuestas_len = df_respuestas['lito'].apply(lambda x: len(x) == lito_len)
     invalid_rows_lito_respuesta = df_respuestas[~(valid_lito_respuestas & valid_lito_respuestas_len)]
     if invalid_rows_lito_respuesta.empty:
         men += 'Hecho\n'
@@ -159,10 +160,11 @@ def duplicated_litio_solution(df_identifi,df_respuestas):
 
 def applicant_card_solution(df_identifi, df_postulantes):
     men = ''
-
     df_identifi['codigo'] = df_identifi['codigo'].astype('int64')
     codigos_identifi = df_identifi['codigo'].unique()
+    print(codigos_identifi)
     codigos_postulantes = df_postulantes['codigo'].unique()
+    print(codigos_postulantes)
     codigos_faltantes_identifi = set(codigos_postulantes) - set(codigos_identifi)
     codigos_faltantes_postulantes = set(codigos_identifi) - set(codigos_postulantes)
 
@@ -171,38 +173,18 @@ def applicant_card_solution(df_identifi, df_postulantes):
     else:
         men += "Los siguientes códigos en df_postulantes no están presentes en df_identifi:" + '\n'
         men += str(df_postulantes.loc[df_postulantes['codigo'].isin(codigos_faltantes_identifi)]) + '\n'
+        print(df_postulantes.loc[df_postulantes['codigo'].isin(codigos_faltantes_identifi)])
 
     if len(codigos_faltantes_postulantes) == 0:
         men += "No hay códigos faltantes en df_postulantes que no estén en df_identifi." + '\n'
     else:
         men += "Los siguientes códigos en df_identifi no están presentes en df_postulantes:" + '\n'
         men += str(df_identifi.loc[df_identifi['codigo'].isin(codigos_faltantes_postulantes)]) + '\n'
+        print(df_identifi.loc[df_identifi['codigo'].isin(codigos_faltantes_postulantes)])
     return men
 
 # 5-Validar Lito no localizado o tema inconsistente
 def lito_not_located(df_identifi, df_respuestas, df_postulante):
-    # # Unir los dataframes y filtrar las filas no localizadas
-    # merged = pd.merge(df_identifi, df_respuestas, on=['lito', 'tema'], how='outer', indicator=True)
-    # no_localizados = merged.query("_merge == 'right_only'").loc[:, ['lito']]
-    # men = ''
-    # # Mostrar los resultados
-    # if no_localizados.empty:
-    #     men += "Todos han sido localizados de respuestas a identificador\n"
-    # else:
-    #     men += f"DataFrame no localizado de respuestas a identificador\n{pd.DataFrame({'lito': no_localizados['lito']})}\n"
-    # # Unir los dataframes y filtrar las filas no localizadas
-    # merged = pd.merge(df_respuestas, df_identifi, on=['lito', 'tema'], how='outer', indicator=True)
-    # no_localizados1 = merged.query("_merge == 'right_only'").loc[:, ['lito']]
-
-    # # Mostrar los resultados
-    # if no_localizados1.empty:
-    #     men += "Todos han sido localizados de identificador a respuesta\n"
-    # else:
-    #     men += f"DataFrame no localizado de identificador a respuesta\n{pd.DataFrame({'lito': no_localizados1['lito']})}\n"
-    # anulados = pd.DataFrame(no_localizados1)
-    # print(anulados)
-    # anulados = pd.merge(df_identifi,anulados, on=['lito'], how='inner')
-    # return men,anulados
     men = ''
 
     df_identifi['lito'] = df_identifi['lito'].astype('int64')

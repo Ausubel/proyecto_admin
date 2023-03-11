@@ -9,9 +9,9 @@ from tkinter import messagebox
 import os
 
 CLAVES = "claves.sdf"
-RESPUESTAS = "respuestas.sdf"
-IDENTIFI= "identifi.sdf"
-POSTULANTES = "postulantes.csv"
+RESPUESTAS = "respuestas2.sdf"
+IDENTIFI= "identifi2.sdf"
+POSTULANTES = "base.xlsx"
 TEMA = 'ABCDPQRS'
 PATRON_CLAVES = 'TRQSP '
 PATRON_RESPUESTAS = 'TRQSP *'
@@ -21,7 +21,28 @@ DF_RESPUESTAS = pd.DataFrame()
 DF_POSTULANTES = pd.DataFrame()
 DF_ANULADOS = pd.DataFrame()
 DF_AUSENTE = pd.DataFrame()
+DF_VACANTES = pd.read_excel('vaca.xlsx')
 calificacion_final = pd.DataFrame()
+CARRERAS = ['CIENCIAS DE LA COMUNICACIÓN', 'FARMACIA Y BIOQUÍMICA',
+    'INGENIERÍA DE SISTEMAS',
+    'CIENCIAS DE LA EDUCACIÓN EN LENGUA Y LITERATURA', 'ENFERMERÍA',
+    'INGENIERÍA CIVIL', 'OBSTETRICIA', 'PSICOLOGÍA', 'BIOLOGÍA',
+    'CONTABILIDAD', 'DERECHO', 'AGRONOMÍA', 'ADMINISTRACIÓN',
+    'CIENCIAS DE LA EDUCACIÓN EN FILOSOFÍA, PSICOLOGÍA Y CIENCIAS SOCIALES',
+    'NEGOCIOS INTERNACIONALES', 'INGENIERÍA MECÁNICA ELÉCTRICA',
+    'INGENIERÍA PESQUERA', 'INGENIERÍA METALÚRGICA', 'ODONTOLOGÍA',
+    'INGENIERÍA ELECTRÓNICA', 'ARQUITECTURA',
+    'INGENIERÍA AMBIENTAL Y SANITARIA',
+    'MEDICINA VETERINARIA Y ZOOTECNIA', 'INGENIERÍA QUÍMICA',
+    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN FÍSICA',
+    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN INICIAL', 'ARQUEOLOGÍA',
+    'ECONOMÍA', 'TURISMO',
+    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN PRIMARIA', 'FÍSICA',
+    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN ARTÍSTICA',
+    'INGENIERÍA DE ALIMENTOS', 'INGENIERÍA DE MINAS', 'ESTADÍSTICA',
+    'CIENCIAS DE LA EDUCACIÓN EN MATEMÁTICA E INFORMÁTICA',
+    'MATEMÁTICA E INFORMÁTICA',
+    'CIENCIAS DE LA EDUCACIÓN EN HISTORIA Y GEOGRAFÍA']
 NAV_BG = '#FF010B'
 BTN_BG = '#dc3545'
 BTN_FG = '#FCF3EA'
@@ -35,7 +56,7 @@ class Navbar(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
         self.config(bg=NAV_BG, height=50, width=600)
-
+        
         self.file_button = tk.Button(self, text='Archivos', bg=BTN_BG, fg=BTN_FG, bd=0, command=self.show_file)
         self.validation_button = tk.Button(self, text='Validar', bg=BTN_BG, fg=BTN_FG, bd=0, command=self.show_validation)
         self.qualify_button = tk.Button(self, text='Calificar', bg=BTN_BG, fg=BTN_FG, bd=0, command=self.show_qualify)
@@ -56,14 +77,14 @@ class Navbar(tk.Frame):
         self.path_label.grid(row=4, column=1)
         # Widgets Archivos
         
-        tk.Button(self.file_panel, text='Subir claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(30,30), pady=50)
+        tk.Button(self.file_panel, text='Cargar claves', width=20, height=2, command=self.select_folder_claves).grid(row=0, column=0, padx=(30,30), pady=50)
         tk.Button(self.file_panel, text='Cargar Identificadores', width=20, height=2, command=self.select_folder_identifi).grid(row=1, column=0, padx=(30,30), pady=50)
         tk.Button(self.file_panel, text='Cargar respuestas', width=20, height=2, command=self.select_folder_respuestas).grid(row=2, column=0, padx=(30,30), pady=50)
-        tk.Button(self.file_panel, text='Limpiar', width=20, height=2, command=self.clean1).grid(row=3, column=0, padx=(30,30), pady=20)
         
         self.file_entry1 = tk.Text(self.file_panel, width=97, height=25)
         self.file_entry1.configure(bg="#FCF3EA")
         self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(30,30), pady=50)
+        self.file_entry1.insert("end", f"\n{DF_VACANTES}")
 
         # Widgets Validacion
 
@@ -103,6 +124,7 @@ class Navbar(tk.Frame):
         self.file_panel.pack_forget()
         self.validation_panel.pack_forget()
         self.qualify_panel.pack_forget()
+        
         
     def modificar(self,listbox, entry):
         preguntas = entry.get()
@@ -156,11 +178,11 @@ class Navbar(tk.Frame):
     def select_folder_postulantes(self):
         global DF_POSTULANTES
         folder_path = filedialog.askdirectory()
-        file_name = 'base.xlsx'
-        ruta_archivo = os.path.join(folder_path, file_name)
+        ruta_archivo = os.path.join(folder_path, POSTULANTES)
         if ruta_archivo != "":
-            # DF_POSTULANTES = pd.read_csv(ruta_archivo)
-            DF_POSTULANTES = pd.read_excel(ruta_archivo)
+            DF_POSTULANTES = pd.read_excel(ruta_archivo, usecols=['DNI','APELLIDO PATERNO','APELLIDO MATERNO','NOMBRES','CARRERA'])
+            DF_POSTULANTES = DF_POSTULANTES.rename(columns={'DNI': 'codigo'})
+            print(DF_POSTULANTES)
             self.file_entry2.insert("end", f"\nArchivo postulantes cargado ..\n")
             return
         
@@ -198,18 +220,16 @@ class Navbar(tk.Frame):
     def validate5(self):
         global DF_ANULADOS
         res, DF_ANULADOS = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS,DF_POSTULANTES)
-                
-        df = pd.read_excel('base.xlsx')
 
         # Convertir la columna 'codigo' a tipo object
-        df['codigo'] = df['codigo'].astype(int)
+        DF_POSTULANTES['codigo'] = DF_POSTULANTES['codigo'].astype(int)
         DF_IDENTIFI['codigo'] = DF_IDENTIFI['codigo'].astype(int)
 
         # Hacer el left anti join
-        merged = pd.merge(df,DF_IDENTIFI[['codigo']], how='left', left_on='codigo', right_on='codigo', indicator=True)
+        merged = pd.merge(DF_POSTULANTES,DF_IDENTIFI[['codigo']], how='left', left_on='codigo', right_on='codigo', indicator=True)
 
         # Filtrar los registros que no están en df_identifi
-        DF_AUSENTE = merged[merged['_merge'] == 'left_only'][df.columns] ############ AUSENTE
+        DF_AUSENTE = merged[merged['_merge'] == 'left_only'][DF_POSTULANTES.columns] ############ AUSENTE
 
         self.file_entry2.insert("end", f"\n************** VALIDACION 5 **************\n{res}")
 
@@ -222,6 +242,16 @@ class Navbar(tk.Frame):
         global calificacion_final
         global DF_AUSENTE
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
+        ##agregando
+        calificacion_final = pd.merge(calificacion_final,DF_POSTULANTES, on='codigo')
+        print(calificacion_final)
+        calificacion_final.to_csv('General.csv', index=False, sep=",")
+        for carrera in CARRERAS:
+            # seleccionar las filas correspondientes a la carrera actual
+            carrera_df = calificacion_final.loc[calificacion_final['CARRERA'] == carrera]
+            # hacer algo con el dataframe resultante
+            carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",")
+
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
         
