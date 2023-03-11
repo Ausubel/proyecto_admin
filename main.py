@@ -8,6 +8,8 @@ from tkinter import filedialog
 from tkinter import messagebox
 import os
 
+vez1 = False
+
 CLAVES = "claves.sdf"
 RESPUESTAS = "respuestas2.sdf"
 IDENTIFI= "identifi2.sdf"
@@ -23,26 +25,10 @@ DF_ANULADOS = pd.DataFrame()
 DF_AUSENTE = pd.DataFrame()
 DF_VACANTES = pd.read_excel('vaca.xlsx')
 calificacion_final = pd.DataFrame()
-CARRERAS = ['CIENCIAS DE LA COMUNICACIÓN', 'FARMACIA Y BIOQUÍMICA',
-    'INGENIERÍA DE SISTEMAS',
-    'CIENCIAS DE LA EDUCACIÓN EN LENGUA Y LITERATURA', 'ENFERMERÍA',
-    'INGENIERÍA CIVIL', 'OBSTETRICIA', 'PSICOLOGÍA', 'BIOLOGÍA',
-    'CONTABILIDAD', 'DERECHO', 'AGRONOMÍA', 'ADMINISTRACIÓN',
-    'CIENCIAS DE LA EDUCACIÓN EN FILOSOFÍA, PSICOLOGÍA Y CIENCIAS SOCIALES',
-    'NEGOCIOS INTERNACIONALES', 'INGENIERÍA MECÁNICA ELÉCTRICA',
-    'INGENIERÍA PESQUERA', 'INGENIERÍA METALÚRGICA', 'ODONTOLOGÍA',
-    'INGENIERÍA ELECTRÓNICA', 'ARQUITECTURA',
-    'INGENIERÍA AMBIENTAL Y SANITARIA',
-    'MEDICINA VETERINARIA Y ZOOTECNIA', 'INGENIERÍA QUÍMICA',
-    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN FÍSICA',
-    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN INICIAL', 'ARQUEOLOGÍA',
-    'ECONOMÍA', 'TURISMO',
-    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN PRIMARIA', 'FÍSICA',
-    'CIENCIAS DE LA EDUCACIÓN EN EDUCACIÓN ARTÍSTICA',
-    'INGENIERÍA DE ALIMENTOS', 'INGENIERÍA DE MINAS', 'ESTADÍSTICA',
-    'CIENCIAS DE LA EDUCACIÓN EN MATEMÁTICA E INFORMÁTICA',
-    'MATEMÁTICA E INFORMÁTICA',
-    'CIENCIAS DE LA EDUCACIÓN EN HISTORIA Y GEOGRAFÍA']
+DF_CARRERAS = pd.read_excel('vaca.xlsx', names=['CARRERA_PROFESIONAL', 'VACANTES'])
+CARRERAS = DF_CARRERAS['CARRERA_PROFESIONAL'].to_list()
+VACANTES = DF_CARRERAS['VACANTES'].to_list()
+DF_CALIFICACION_FINAL = pd.DataFrame()
 NAV_BG = '#FF010B'
 BTN_BG = '#dc3545'
 BTN_FG = '#FCF3EA'
@@ -241,63 +227,24 @@ class Navbar(tk.Frame):
     def qualify(self):
         global calificacion_final
         global DF_AUSENTE
+        global DF_CALIFICACION_FINAL
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
         ##agregando
         calificacion_final = pd.merge(calificacion_final,DF_POSTULANTES, on='codigo')
         print(calificacion_final)
+        DF_CALIFICACION_FINAL = calificacion_final
         calificacion_final.to_csv('General.csv', index=False, sep=",")
         for carrera in CARRERAS:
-            # seleccionar las filas correspondientes a la carrera actual
             carrera_df = calificacion_final.loc[calificacion_final['CARRERA'] == carrera]
-            # hacer algo con el dataframe resultante
-            carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",")
-
+            if vez1 == True:
+                carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",")
+            else:
+                carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",", mode="a", header=not os.path.exists(f'./sdf/{carrera}.csv'))
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
         
     def save(self):
         pass
-        # # Abrir conexion
-        # cnxn_str = ("Driver={SQL Server Native Client 11.0};"
-        #     "Server=LAPTOP-8LNIGLG0;"
-        #     "Database=Admission;"
-        #     "Trusted_Connection=yes;")
-        # cnxn = pyodbc.connect(cnxn_str)
-
-        # # consulta SQL para obtener la tabla
-        # sql = "SELECT Id, Nombre, codigo, escuela FROM Alumnos"
-
-        # # leer la tabla en un dataframe de Pandas
-        # df_sql = pd.read_sql(sql, cnxn)
-
-        # # cerrar la conexión con la base de datos
-        # cnxn.close()
-
-        # # unir los dataframes utilizando la columna "codigo" como clave de unión
-        # df_merged = pd.merge(calificacion_final, df_sql[['Nombre','codigo', 'escuela']], on='codigo', how='left')
-
-        # # Selecciona alugnos campos
-        # df = df_merged.loc[:, ['codigo', 'Nombre', 'escuela','puntaje']]
-
-
-        # groups = df.groupby(df.escuela)
-
-        # # Prueba
-        # # f_sistemas = groups.get_group("sistemas")
-
-        # # f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
-
-        # # valido
-        # escuelas = df['escuela'].unique()
-        
-        # for i in escuelas:
-        #     especialidad = groups.get_group(i)
-        #     especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
-        #     especialidad.to_csv(f'{i}.csv', index=False, sep=",")
-
-        # self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
-
-
 
 root = tk.Tk()
 root.title("AdminUnica")
