@@ -156,7 +156,7 @@ class Navbar(tk.Frame):
     def select_folder_postulantes(self):
         global DF_POSTULANTES
         folder_path = filedialog.askdirectory()
-        file_name = 'base.xlsx'
+        file_name = 'BASE.xlsx'
         ruta_archivo = os.path.join(folder_path, file_name)
         if ruta_archivo != "":
             # DF_POSTULANTES = pd.read_csv(ruta_archivo)
@@ -197,9 +197,10 @@ class Navbar(tk.Frame):
 
     def validate5(self):
         global DF_ANULADOS
+        global DF_AUSENTE
         res, DF_ANULADOS = lito_not_located(DF_IDENTIFI, DF_RESPUESTAS,DF_POSTULANTES)
                 
-        df = pd.read_excel('base.xlsx')
+        df = pd.read_excel('BASE.xlsx')
 
         # Convertir la columna 'codigo' a tipo object
         df['codigo'] = df['codigo'].astype(int)
@@ -222,9 +223,107 @@ class Navbar(tk.Frame):
         global calificacion_final
         global DF_AUSENTE
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
+
+        print(f"ANULADOOO\n{DF_ANULADOS}")
+        print(f"AUSENTEEE{DF_AUSENTE}")
+        print(f"CALIFICACION FINAL{calificacion_final}")
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
+        DF_BASE = pd.read_excel("BASE.xlsx")
+        # unir los dataframes utilizando la columna "codigo" como clave de unión
+        print(f"DF_BASEEE\n{DF_BASE}")
+
+        ### YA CONECTADOS CON EL CODIGO
+        merged_df = pd.merge(calificacion_final, DF_BASE[['codigo', 'AP_PATERNO', 'AP_MATERNO', 'NOMBRE', 'CARRERA']], on='codigo')
+        merged_df = merged_df[['codigo', 'AP_PATERNO', 'AP_MATERNO', 'NOMBRE', 'puntaje', 'CARRERA']]
         
+        print(f"DF UNIDO POR EL CODIGO\n\n{merged_df}")
+        
+        ### UNIENDO CON LOS DATAFRAMES AUSENTES Y ANULADOS
+        ###### NOTA ACA NO SE AGREGAN LOS DF AUSENTES Y ANULADOS PORQUE LUEGO SE DIFICULTA IDENTIFICARLOS AL REPARTIRLOS DESDE EL DATAFRAME GENERAL
+        
+        # ## PARA AUSENTE
+        # # Concatenamos los DataFrames
+        # merged_df = pd.concat([merged_df, DF_AUSENTE])
+
+        # # Reemplazamos los valores faltantes por 0
+        # merged_df['puntaje'] = merged_df['puntaje'].fillna(0)
+
+        # ## PARA ANULADOS
+        # # Concatenamos los DataFrames
+        # merged_df = pd.concat([merged_df, DF_ANULADOS])
+
+        # # Reemplazamos los valores faltantes por 0
+        # merged_df['puntaje'] = merged_df['puntaje'].fillna(0)
+
+
+        ## FINAL TODO UNIDO
+        print(f"ESTE EL DF FINAL CON LOS ANULADOS Y AUSENTES :\n\n{merged_df}")
+
+        # print(f"HALLAR COLUMNAS\n\n{merged_df.columns}")
+
+        ## AHORA UNO LAS COLUMAS Y CAMBIO EL NOMBRE DE LAS CABECERAS
+        # renombrar las columnas
+        merged_df = merged_df.rename(columns={'codigo': 'CODIGO', 'AP_PATERNO': 'APELLIDO PATERNO', 'AP_MATERNO': 'APELLIDO MATERNO', 'NOMBRE': 'NOMBRES', 'puntaje': 'PUNTAJE', 'CARRERA': 'CARRERA'})
+
+        # combinar las columnas de APELLIDO PATERNO, APELLIDO MATERNO y NOMBRES en una sola columna
+        merged_df['APELLIDOS Y NOMBRES'] = merged_df.apply(lambda x: f"{x['APELLIDO PATERNO']} {x['APELLIDO MATERNO']} {x['NOMBRES']}", axis=1)
+
+        # eliminar las columnas de APELLIDO PATERNO, APELLIDO MATERNO y NOMBRES
+        merged_df = merged_df.drop(['APELLIDO PATERNO', 'APELLIDO MATERNO', 'NOMBRES'], axis=1)
+
+        # ordenar el dataframe por la columna CODIGO
+        # merged_df = merged_df.sort_values('CODIGO')
+        print(f"ESTO ES RENOMBRADOO\n\n{merged_df}")
+
+        # EN ESTE PASO CAMBIO LA POSICION DE LA COLUMNA APELLIDOS Y NOMBRES
+        merged_df = merged_df.reindex(columns=['CODIGO', 'APELLIDOS Y NOMBRES', 'PUNTAJE', 'CARRERA'])
+
+
+        #### ESTA LINEA ES PARA AGREGAR LA CONDICION COMO NaN
+        merged_df['CONDICION'] = pd.Series([float('NaN') for _ in range(len(merged_df))])
+        
+        print(f"ACA SE MUESTRA EL GENERAL YA ORDENADO RENOMBRADO Y TODO ...\n\n{merged_df}")
+
+        print("##############\n")
+        
+        
+        
+        
+        #### EN ESTA LINEA AGREGO LA CONDICION A LOS DATAFRAMES DE DF_AUSENTE Y DF_ANULADO
+        DF_ANULADOS["CONDICION"] = "ANULADO"
+        DF_AUSENTE["CONDICION"] = "AUSENTE"
+        
+        
+        
+        
+        ## AHORA PASAMOS A LA PARTE DE REPARTIR POR FACULTAD - EL DF QUE SE USA ES merged_df
+        
+        
+        ########### FUNCIONA PERO PARA CSV #######################
+        # groups = merged_df.groupby(merged_df.CARRERA)
+        
+        # # valido
+        # escuelas = merged_df['CARRERA'].unique()
+        
+        # for i in escuelas:
+        #     especialidad = groups.get_group(i)
+        #     especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
+        #     especialidad.to_csv(f'resultados/{i}.csv', index=False, sep=",")
+        ############################################################
+
+        # merged_df = pd.read_csv('merged_data.csv')
+
+        groups = merged_df.groupby('CARRERA')
+
+        with pd.ExcelWriter('resultados1.xlsx') as writer:
+            for carrera in merged_df['CARRERA'].unique():
+                especialidad = groups.get_group(carrera)
+                especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
+                especialidad.to_excel(writer, sheet_name=carrera, index=False)
+
+        ## HASTA EL MOMENTO SE GENERA UN EXCEL SIN LOS 
+
     def save(self):
         pass
         # # Abrir conexion
