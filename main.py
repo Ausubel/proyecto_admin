@@ -10,20 +10,19 @@ import os
 
 vez1 = False
 
-CLAVES = "claves.sdf"
-RESPUESTAS = "respuestas2.sdf"
-IDENTIFI= "identifi2.sdf"
-POSTULANTES = "base.xlsx"
-TEMA = 'ABCDPQRS'
-PATRON_CLAVES = 'TRQSP '
-PATRON_RESPUESTAS = 'TRQSP *'
+CLAVES = "cla_lino.sdf"
+RESPUESTAS = "res_lino.sdf"
+IDENTIFI= "ide_lino.sdf"
+POSTULANTES = "base_copy.xlsx"
+TEMA = 'F'
+PATRON_CLAVES = 'ABCDE'
+PATRON_RESPUESTAS = 'ABCDE *'
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
 DF_POSTULANTES = pd.DataFrame()
 DF_ANULADOS = pd.DataFrame()
 DF_AUSENTE = pd.DataFrame()
-DF_VACANTES = pd.read_excel('vaca.xlsx')
 calificacion_final = pd.DataFrame()
 DF_CARRERAS = pd.read_excel('vaca.xlsx', names=['CARRERA_PROFESIONAL', 'VACANTES'])
 CARRERAS = DF_CARRERAS['CARRERA_PROFESIONAL'].to_list()
@@ -70,7 +69,6 @@ class Navbar(tk.Frame):
         self.file_entry1 = tk.Text(self.file_panel, width=97, height=25)
         self.file_entry1.configure(bg="#FCF3EA")
         self.file_entry1.grid(row=0, column=1, rowspan=5, padx=(30,30), pady=50)
-        self.file_entry1.insert("end", f"\n{DF_VACANTES}")
 
         # Widgets Validacion
 
@@ -233,14 +231,20 @@ class Navbar(tk.Frame):
         calificacion_final = pd.merge(calificacion_final,DF_POSTULANTES, on='codigo')
         print(calificacion_final)
         DF_CALIFICACION_FINAL = calificacion_final
-        calificacion_final.to_csv('General.csv', index=False, sep=",")
+        if vez1:
+            calificacion_final.to_csv('General.csv', index=False, sep=",")
+        else:
+            calificacion_final.to_csv(f'General.csv', index=False, sep=",", mode="a", header=not os.path.exists(f'General.csv'))
+        
         for carrera in CARRERAS:
             carrera_df = calificacion_final.loc[calificacion_final['CARRERA'] == carrera]
-            if vez1 == True:
+            if vez1:
                 carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",")
             else:
                 carrera_df.to_csv(f'./sdf/{carrera}.csv', index=False, sep=",", mode="a", header=not os.path.exists(f'./sdf/{carrera}.csv'))
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
+
+
 
         
     def save(self):

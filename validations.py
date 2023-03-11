@@ -5,7 +5,7 @@ import re
 
 def estructure_solution(df_claves, df_identifi, df_respuestas, tema, patron_claves, patron_respuestas):
     men = 'VERIFICANDO CLAVES\n'
-    lito_len = 4
+    lito_len = 6
     codigo_len = 8
     def validar_solucion_respuesta(solucion,patron):
         if len(solucion) != 100:

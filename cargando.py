@@ -15,7 +15,7 @@ class Cargar():
                 for line in data_claves:
                     lito = line[:6]
                     tema = line[6]
-                    solucion = line[7:].replace('\n', '')
+                    solucion = line[8:].replace('\n', '')
                     df_claves = pd.concat([df_claves, pd.DataFrame({'lito_clave': [lito], 'tema_clave': [tema], 'solucion': [solucion]})], ignore_index=True)            
                 archivo.close()
             return df_claves
@@ -30,9 +30,9 @@ class Cargar():
                 df_identifi = pd.DataFrame(columns=['lito', 'tema', 'codigo'])
                 data_identifi = archivo.readlines()
                 for linea in data_identifi:
-                    lito = linea[:4]
-                    tema = linea[4]
-                    codigo = linea[5:].replace('\n', '')
+                    lito = linea[:6]
+                    tema = linea[6]
+                    codigo = linea[7:].replace('\n', '')
                     df_identifi = pd.concat([df_identifi, pd.DataFrame({'lito': [lito], 'tema': [tema], 'codigo': [codigo]})], ignore_index=True)
         except Exception as e:
             print('Hubo un error: ', e)
@@ -44,9 +44,9 @@ class Cargar():
                 df_respuestas = pd.DataFrame(columns=['lito', 'tema', 'respuesta'])
                 data_respuestas = archivo.readlines()
                 for linea in data_respuestas:
-                    lito = linea[:4]
-                    tema = linea[4]
-                    respuesta = linea[5:].replace('\n', '')
+                    lito = linea[:6]
+                    tema = linea[6]
+                    respuesta = linea[8:].replace('\n', '')
                     df_respuestas = pd.concat([df_respuestas, pd.DataFrame({'lito': [lito], 'tema': [tema], 'respuesta': [respuesta]})], ignore_index=True)
         except Exception as e:
             print('Hubo un error: ', e)
