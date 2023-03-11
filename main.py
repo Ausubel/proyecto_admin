@@ -8,13 +8,13 @@ from tkinter import filedialog
 from tkinter import messagebox
 import os
 
-CLAVES = "claves.sdf"
-RESPUESTAS = "respuestas.sdf"
-IDENTIFI= "identifi.sdf"
+CLAVES = "cla_lino.sdf"
+RESPUESTAS = "res_lino.sdf"
+IDENTIFI= "ide_lino.sdf"
 POSTULANTES = "postulantes.csv"
-TEMA = 'ABCDPQRS'
-PATRON_CLAVES = 'TRQSP '
-PATRON_RESPUESTAS = 'TRQSP *'
+TEMA = 'FGHIJKLMNOPRSTUVWXYZ'
+PATRON_CLAVES = 'ABCDE '
+PATRON_RESPUESTAS = 'ABCDE *'
 DF_CLAVES = pd.DataFrame()
 DF_IDENTIFI = pd.DataFrame()
 DF_RESPUESTAS = pd.DataFrame()
@@ -128,11 +128,29 @@ class Navbar(tk.Frame):
     
     def select_folder_claves(self):
         global DF_CLAVES
+        global DF_RESPUESTAS
+        global DF_IDENTIFI
+        
         folder_path = filedialog.askdirectory()
         ruta_archivo = os.path.join(folder_path, CLAVES)
         if ruta_archivo != "":
             DF_CLAVES = carga.leer_claves(ruta_archivo)
             self.file_entry1.insert("end", f"\nSe cargaron las claves ..")
+        
+        ################
+        
+        folder_path = filedialog.askdirectory()
+        ruta_archivo = os.path.join(folder_path, RESPUESTAS)
+        if ruta_archivo != "":
+            DF_RESPUESTAS = carga.leer_respuestas(ruta_archivo)
+            self.file_entry1.insert("end", f"\nSe cargaron las respuestas ..")
+        ################
+        
+        folder_path = filedialog.askdirectory()
+        ruta_archivo = os.path.join(folder_path, IDENTIFI)
+        if ruta_archivo != "":
+            DF_IDENTIFI = carga.leer_indentifi(ruta_archivo)
+            self.file_entry1.insert("end", f"\nSe cargaron los identificadores ..")
             return 
 
     def select_folder_respuestas(self):
@@ -216,16 +234,35 @@ class Navbar(tk.Frame):
 
         print(f"Estos son ausentes \n\n{DF_AUSENTE}")
         print(f"Estos son anulados \n\n{DF_ANULADOS}")
+        
         return
 
 
     def qualify(self):
         global calificacion_final
         global DF_AUSENTE
+        global DF_ANULADOS
         calificacion_final = qualify_normal(DF_CLAVES, DF_IDENTIFI, DF_RESPUESTAS)
 
-        print(f"ANULADOOO\n{DF_ANULADOS}")
-        print(f"AUSENTEEE{DF_AUSENTE}")
+        DF_ANULADOS["CONDICION"] = "NO INGRESO"
+        DF_AUSENTE["CONDICION"] = "NO INGRESO"
+        DF_ANULADOS["PUNTAJE"] = "Anulado"
+        DF_AUSENTE["PUNTAJE"] = "Ausente"
+        # DF_ANULADOS['APELLIDOS Y NOMBRES'] = DF_ANULADOS.apply(lambda x: f"{x['APELLIDO PATERNO']} {x['APELLIDO MATERNO']} {x['NOMBRES']}", axis=1)
+        # DF_ANULADOS = DF_ANULADOS.drop(['APELLIDO PATERNO', 'APELLIDO MATERNO', 'NOMBRES'], axis=1)
+
+        
+        print(f"ANULADOOO\n\n{DF_ANULADOS}")
+        print(f"AUSENTEEE\n\n{DF_AUSENTE}")
+        DF_AUSENTE['APELLIDOS Y NOMBRES'] = DF_AUSENTE.apply(lambda x: f"{x['AP_PATERNO']} {x['AP_MATERNO']} {x['NOMBRE']}", axis=1)
+        DF_ANULADOS['APELLIDOS Y NOMBRES'] = DF_ANULADOS.apply(lambda x: f"{x['AP_PATERNO']} {x['AP_MATERNO']} {x['NOMBRE']}", axis=1)
+        DF_ANULADOS = DF_ANULADOS.drop(['AP_PATERNO', 'AP_MATERNO', 'NOMBRE'], axis=1)
+        DF_AUSENTE = DF_AUSENTE.drop(['AP_PATERNO', 'AP_MATERNO', 'NOMBRE'], axis=1)
+        
+        DF_ANULADOS = DF_ANULADOS.reindex(columns=['codigo', 'APELLIDOS Y NOMBRES', 'PUNTAJE', 'CONDICION', 'CARRERA'])
+        DF_AUSENTE = DF_AUSENTE.reindex(columns=['codigo', 'APELLIDOS Y NOMBRES', 'PUNTAJE', 'CONDICION', 'CARRERA'])
+        
+        
         print(f"CALIFICACION FINAL{calificacion_final}")
         self.file_entry3.insert("end", f"\nCalificación con exito \n{calificacion_final}")
 
@@ -238,24 +275,6 @@ class Navbar(tk.Frame):
         merged_df = merged_df[['codigo', 'AP_PATERNO', 'AP_MATERNO', 'NOMBRE', 'puntaje', 'CARRERA']]
         
         print(f"DF UNIDO POR EL CODIGO\n\n{merged_df}")
-        
-        ### UNIENDO CON LOS DATAFRAMES AUSENTES Y ANULADOS
-        ###### NOTA ACA NO SE AGREGAN LOS DF AUSENTES Y ANULADOS PORQUE LUEGO SE DIFICULTA IDENTIFICARLOS AL REPARTIRLOS DESDE EL DATAFRAME GENERAL
-        
-        # ## PARA AUSENTE
-        # # Concatenamos los DataFrames
-        # merged_df = pd.concat([merged_df, DF_AUSENTE])
-
-        # # Reemplazamos los valores faltantes por 0
-        # merged_df['puntaje'] = merged_df['puntaje'].fillna(0)
-
-        # ## PARA ANULADOS
-        # # Concatenamos los DataFrames
-        # merged_df = pd.concat([merged_df, DF_ANULADOS])
-
-        # # Reemplazamos los valores faltantes por 0
-        # merged_df['puntaje'] = merged_df['puntaje'].fillna(0)
-
 
         ## FINAL TODO UNIDO
         print(f"ESTE EL DF FINAL CON LOS ANULADOS Y AUSENTES :\n\n{merged_df}")
@@ -286,33 +305,6 @@ class Navbar(tk.Frame):
         print(f"ACA SE MUESTRA EL GENERAL YA ORDENADO RENOMBRADO Y TODO ...\n\n{merged_df}")
 
         print("##############\n")
-        
-        
-        
-        
-        #### EN ESTA LINEA AGREGO LA CONDICION A LOS DATAFRAMES DE DF_AUSENTE Y DF_ANULADO
-        DF_ANULADOS["CONDICION"] = "ANULADO"
-        DF_AUSENTE["CONDICION"] = "AUSENTE"
-        
-        
-        
-        
-        ## AHORA PASAMOS A LA PARTE DE REPARTIR POR FACULTAD - EL DF QUE SE USA ES merged_df
-        
-        
-        ########### FUNCIONA PERO PARA CSV #######################
-        # groups = merged_df.groupby(merged_df.CARRERA)
-        
-        # # valido
-        # escuelas = merged_df['CARRERA'].unique()
-        
-        # for i in escuelas:
-        #     especialidad = groups.get_group(i)
-        #     especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
-        #     especialidad.to_csv(f'resultados/{i}.csv', index=False, sep=",")
-        ############################################################
-
-        # merged_df = pd.read_csv('merged_data.csv')
 
         groups = merged_df.groupby('CARRERA')
 
@@ -321,52 +313,61 @@ class Navbar(tk.Frame):
                 especialidad = groups.get_group(carrera)
                 especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
                 especialidad.to_excel(writer, sheet_name=carrera, index=False)
+        
+        
+        # # Unir las columnas de apellidos y nombres
+        
+        # ########################
+        # DF_AUSENTE['APELLIDOS Y NOMBRES'] = DF_AUSENTE['AP_PATERNO'] + ' ' + DF_AUSENTE['AP_MATERNO'] + ' ' + DF_AUSENTE['NOMBRE']
 
-        ## HASTA EL MOMENTO SE GENERA UN EXCEL SIN LOS 
+        # # Agregar la columna de puntaje
+        # DF_AUSENTE['PUNTAJE'] = 'Ausente'
 
+        # # Reordenar las columnas
+        # DF_AUSENTE = DF_AUSENTE[['codigo', 'APELLIDOS Y NOMBRES', 'PUNTAJE', 'CONDICION', 'CARRERA']]
+
+        # # Mostrar el resultado final
+        # print(f"AUSENTEEE\n\n{DF_AUSENTE}")
+        
+        
+        
+        
+        ############################### INTENTO DE AGREGAR LOS AUSENTES Y ANULADOS AL EXCEL
+        # leer el archivo excel y almacenar cada hoja en un diccionario
+        # excel_file = pd.ExcelFile('resultados1.xlsx')
+        # sheets = {}
+        # for sheet_name in excel_file.sheet_names:
+        #     sheets[sheet_name] = excel_file.parse(sheet_name)
+
+        # agregar filas para estudiantes ausentes
+        # for carrera in sheets:
+        #     ausentes = DF_AUSENTE.loc[DF_AUSENTE['CARRERA'] == carrera]
+        #     for i, row in ausentes.iterrows():
+        #         new_row = {'orden': len(sheets[carrera]) + 1,
+        #                 'CODIGO': row['codigo'],
+        #                 'APELLIDOS Y NOMBRES': f"{row['AP_PATERNO']} {row['AP_MATERNO']} {row['NOMBRE']}",
+        #                 'PUNTAJE': 0.0,
+        #                 'CARRERA': carrera,
+        #                 'CONDICION': 'AUSENTE'}
+        #         sheets[carrera] = sheets[carrera].append(new_row, ignore_index=True)
+
+
+        ################### GENERAR UN EXCEL APARTE
+        
+        # EXPORTO COMO EN EXCEL LOS ANULADOS Y AUSENTES
+        # Crear un objeto ExcelWriter para guardar los DataFrames en un archivo de Excel
+        writer = pd.ExcelWriter('mi_archivo.xlsx', engine='xlsxwriter')
+
+        # Guardar el DataFrame DF_ANULADO en la hoja 'DF_ANULADO'
+        DF_ANULADOS.to_excel(writer, sheet_name='DF_ANULADO', index=False)
+
+        # Guardar el DataFrame DF_AUSENTE en la hoja 'DF_AUSENTE'
+        DF_AUSENTE.to_excel(writer, sheet_name='DF_AUSENTE', index=False)
+        writer.save()
+        print(f"ANULADOOO\n\n{DF_ANULADOS}")
+        print(f"AUSENTEEE\n\n{DF_AUSENTE}")
     def save(self):
         pass
-        # # Abrir conexion
-        # cnxn_str = ("Driver={SQL Server Native Client 11.0};"
-        #     "Server=LAPTOP-8LNIGLG0;"
-        #     "Database=Admission;"
-        #     "Trusted_Connection=yes;")
-        # cnxn = pyodbc.connect(cnxn_str)
-
-        # # consulta SQL para obtener la tabla
-        # sql = "SELECT Id, Nombre, codigo, escuela FROM Alumnos"
-
-        # # leer la tabla en un dataframe de Pandas
-        # df_sql = pd.read_sql(sql, cnxn)
-
-        # # cerrar la conexión con la base de datos
-        # cnxn.close()
-
-        # # unir los dataframes utilizando la columna "codigo" como clave de unión
-        # df_merged = pd.merge(calificacion_final, df_sql[['Nombre','codigo', 'escuela']], on='codigo', how='left')
-
-        # # Selecciona alugnos campos
-        # df = df_merged.loc[:, ['codigo', 'Nombre', 'escuela','puntaje']]
-
-
-        # groups = df.groupby(df.escuela)
-
-        # # Prueba
-        # # f_sistemas = groups.get_group("sistemas")
-
-        # # f_sistemas.insert(0, 'orden', range(1, len(f_sistemas)+1))
-
-        # # valido
-        # escuelas = df['escuela'].unique()
-        
-        # for i in escuelas:
-        #     especialidad = groups.get_group(i)
-        #     especialidad.insert(0, 'orden', range(1, len(especialidad)+1))
-        #     especialidad.to_csv(f'{i}.csv', index=False, sep=",")
-
-        # self.file_entry3.insert("end", f"\nGuardado dastisfactoriamente\n")
-
-
 
 root = tk.Tk()
 root.title("AdminUnica")
